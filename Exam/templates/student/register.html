@@ -47,6 +47,10 @@ input[type=submit]:hover{
             {% csrf_token %}
             {% include 'partials/_messages.html' %}
             <div class="form-group">
+			<label for = "first_name">{{ student_form.first_name.label_tag }} </label>
+              {{student_form.first_name}}
+            </div>
+            <div class="form-group">
 			<label for = "username">{{ student_form.username.label_tag }} </label>
               {{student_form.username}}
             </div>

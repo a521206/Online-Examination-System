@@ -31,7 +31,9 @@ class Register(View):
         email = request.POST['email']
 
         if student_form.is_valid() and student_info_form.is_valid():
-            student = student_form.save()
+            student = student_form.save(commit=False)
+            student.first_name = student_form.cleaned_data.get('first_name', '')
+            student.save()
             student.set_password(student.password)
             student.is_active = False
             my_group = Group.objects.get_or_create(name='Student')

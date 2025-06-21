@@ -1,0 +1,110 @@
+body, html, .hero-section, .dashboard-cards, .dashboard-card, .dashboard-card h2, .dashboard-card p, .dashboard-card .icon {
+  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Arial', sans-serif !important;
+}
+body {
+  background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+  min-height: 100vh;
+}
+.hero-section {
+  text-align: center;
+  padding: 3rem 1rem 2rem 1rem;
+}
+.hero-section h1 {
+  font-weight: 700;
+  color: #2a4365;
+}
+.hero-section p {
+  color: #4a5568;
+  font-size: 1.2rem;
+}
+.dashboard-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+.dashboard-card {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 24px rgba(44, 62, 80, 0.08);
+  width: 320px;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.dashboard-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 8px 32px rgba(44, 62, 80, 0.16);
+}
+.dashboard-card .icon {
+  font-size: 3rem;
+  color: #3182ce;
+  margin-bottom: 1rem;
+  transition: color 0.2s;
+}
+.dashboard-card:hover .icon {
+  color: #2b6cb0;
+}
+.dashboard-card h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2a4365;
+  margin-bottom: 0.5rem;
+}
+.dashboard-card p {
+  color: #4a5568;
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+@media (max-width: 900px) {
+  .dashboard-cards {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+}
+
+/* Styles moved from giveExam.html */
+body, .hero-section, .dashboard-card, .exam-card-title, .form-check-label, .badge {
+  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Arial', sans-serif !important;
+}
+.hero-section.exam-hero {
+  background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 24px rgba(44, 62, 80, 0.08);
+  padding: 2.5rem 1.5rem 2rem 1.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.exam-timer-badge {
+  display: inline-block;
+  margin: 1.2em 0 0.5em 0;
+  font-size: 1.3em;
+  padding: 0.9em 1.5em;
+  border-radius: 2em;
+}
+.exam-card-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #2a4365;
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
+@media (max-width: 600px) {
+  .hero-section.exam-hero {
+    padding: 1.2rem 0.5rem 1rem 0.5rem;
+  }
+  .dashboard-card {
+    padding: 1.2rem 0.5rem;
+  }
+} 

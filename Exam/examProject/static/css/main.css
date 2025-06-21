@@ -1,3 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+body, html, input, button, select, textarea {
+  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Arial', sans-serif !important;
+}
 
 .showPasswordToggle{
 cursor: pointer;
@@ -7,7 +12,7 @@ transition: all;
 transform: scale(1.2);
 }
 body{
-  font-family: cursive;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Arial', sans-serif !important;
 }
 .bd-placeholder-img {
         font-size: 1.125rem;

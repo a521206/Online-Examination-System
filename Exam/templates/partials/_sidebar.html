@@ -12,7 +12,7 @@
     border-radius: 0.5em;
     position: fixed;
     top: 5em;
-    left: -16em;
+    left: 0;
     width: 17em;
     height: 100%;
     background: white;
@@ -23,120 +23,140 @@
 
   .sidebar header{
     font-size: 2em;
-    color: #745959;
+    color: #3182ce;
     text-align: center;
     line-height: 2em;
     background: none;
     user-select: none;
+    font-weight: 700;
   }
 
   .sidebar ul a{
-    color: #745959;
+    color: #2a4365;
+    display: flex;
+    align-items: center;
+    gap: 0.7em;
+    font-size: 1.1em;
+    padding: 0.5em 0;
+    transition: background 0.2s, color 0.2s, padding-left 0.2s;
   }
 
   .sidebar li{
     display: block;
     width: 100%;
     line-height: 2em;
-    font-size: 1.5em;
-    color: #745959;
+    font-size: 1.2em;
+    color: #2a4365;
     padding-left: 1.5em;
     box-sizing: border-box;
-    border-top: 0.1em solid rgba(116, 89, 89,0.1);
+    border-top: 0.1em solid rgba(44, 62, 80,0.07);
   }
 
   ul li:hover a{
-    padding-left: 1em;
-    transition: 0.6s;
+    padding-left: 1.5em;
+    color: #3182ce;
+    background: #e0eafc;
+    border-radius: 0.5em;
+    transition: 0.3s;
   }
 
   .sidebar ul a i {
-    margin-right: 10em;
+    font-size: 1.3em;
+    min-width: 1.5em;
+    text-align: center;
   }
 
   #check{
     display:none;
   }
 
-  label #btn, label #cancel{
+  label#sidebar-toggle {
     position: absolute;
-    cursor: pointer;
-    border-radius: 0.1em;
-  }
-
-  label #btn{
     left: 1em;
     top: 2.1em;
     font-size: 2.5em;
-    color: #a3d5ff;
+    color: #3182ce;
     padding: 0.2em;
-    border: #bdaf7b;
+    border-radius: 0.1em;
+    cursor: pointer;
+    z-index: 1002;
     transition: all 0.5s;
+    background: white;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.07);
   }
 
-  label #cancel{
-    z-index: 1111;
-    left: -5.5em;
+  label#sidebar-close {
+    position: absolute;
+    left: 15em;
     top: 2.1em;
     font-size: 2.5em;
-    color: #a3d5ff;
+    color: #3182ce;
     padding: 0.2em;
-    transition: all 0.5s ease;
+    border-radius: 0.1em;
+    cursor: pointer;
+    z-index: 1002;
+    transition: all 0.5s;
+    background: white;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+    display: none;
   }
 
-  #check:checked ~ .sidebar{
-    left: 0;
+  /* Mobile: sidebar hidden by default, toggled by checkbox */
+  @media (max-width: 900px) {
+    .sidebar {
+      left: -18em;
+    }
+    #check:checked ~ .sidebar {
+      left: 0;
+    }
+    label#sidebar-toggle {
+      display: block;
+    }
+    #check:checked ~ label#sidebar-toggle {
+      display: none;
+    }
+    #check:checked ~ label#sidebar-close {
+      display: block;
+    }
+    label#sidebar-close {
+      display: none;
+    }
   }
 
-  #check:checked ~ label #btn{
-    left: 2em;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  #check:checked ~ label #cancel{
-    left: 5.5em;
-  }
-
-  #check:checked ~ section{
-    margin-left: 20em;
-  }
-
-  section{
-    padding: 2em 5em 5em 2em;
-    transition: all 0.5s ease;
+  /* Desktop: sidebar always visible, hide toggles */
+  @media (min-width: 901px) {
+    .sidebar {
+      left: 0 !important;
+    }
+    label#sidebar-toggle, label#sidebar-close {
+      display: none !important;
+    }
+    body {
+      margin-left: 17em;
+    }
   }
 
 </style>
+<!-- Ensure Bootstrap Icons CDN is loaded in your base.html or index.html -->
 <input type="checkbox" id="check">
-<label for="check">
-  <i class="fas fa-bars" id="btn"></i>
-  <i class="fas fa-times" id="cancel"></i>
+<label for="check" id="sidebar-toggle">
+  <i class="bi bi-list"></i>
+</label>
+<label for="check" id="sidebar-close">
+  <i class="bi bi-x"></i>
 </label>
 <div class="sidebar">
   <header>
-    Dashboard
+    Student Menu
   </header>
   <ul>
-    <ul>
-      <li><a href="{% url 'index' %}">Index</a></li>
-    </ul>
-    <li><i class="fas fa-file-alt"></i>  Exams</li>
-    <ul>
-      <li><a href="{% url 'view_exams' %}">Exams</a></li>
-    </ul>
-    <li><i class="fas fa-clipboard-list"></i>  Summary</li>
-    <ul>
-      <li><a href="{% url 'view_students_attendance' %}">Attendance</a></li>
-      <li><a href="{% url 'student-previous' %}">Results and Previous Exams</a></li>
-    </ul>
-    <li><i class="fas fa-sliders-h"></i>  Settings and Actions </a></li>
-    <ul>
-      <li><a href="{% url 'email-student-pref' %}">General Settings</a></li>
-	  <form id="my_form" action="{% url 'logout' %}" method="POST">
-             {% csrf_token %}
-            <li><a href="javascript:{}" onclick="document.getElementById('my_form').submit();">Logout</a></li>
-      </form>
-    </ul>
+    <li><a href="{% url 'index' %}"><i class="bi bi-house-door"></i> Dashboard</a></li>
+    <li><a href="{% url 'view_exams_student' %}"><i class="bi bi-journal-text"></i> Exams</a></li>
+    <li><a href="{% url 'student-previous' %}"><i class="bi bi-clipboard-data"></i> Summary</a></li>
+    <li><a href="{% url 'email-student-pref' %}"><i class="bi bi-gear"></i> Settings</a></li>
+    <form id="my_form" action="{% url 'logout' %}" method="POST" style="margin:0;">
+      {% csrf_token %}
+      <li style="border:none;"><a href="javascript:{}" onclick="document.getElementById('my_form').submit();"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+    </form>
   </ul>
 </div>

@@ -1,6 +1,6 @@
 /* styles.css */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', 'Segoe UI', 'Roboto', 'Arial', sans-serif !important;
     margin: 0;
     padding: 0;
 }

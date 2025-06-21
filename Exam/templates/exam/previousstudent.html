@@ -1,37 +1,55 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block body %}
-    <div class="mt-5">
-    </div>
-    <div class="container">
-        {% if completed %}
-                <table class="table">
-                    <thead class="thead" style="color: #745959; background-color: #87ff9b">
-                        <tr>
-                        <th scope="col">Exam Name</th>
-                        <th scope="col">Exam title</th>
-                        <th scope="col">Exam Professor</th>
-                        <th scope="col">Action</th>
-                        </tr>
-                    </thead>
-            {% for exam in completed %}
-                    <tbody>
-                        <tr>
-                        <td>{{exam.name}}</td>
-                        <td>{{exam.question_paper.qPaperTitle}}</td>
-                        <td>{{exam.professor}}</td>
-                        <td>
-                            <a href="{% url 'result' exam.id  %}" class="btn btn-sm btn-info">Result</a>
-                        </tr>
-                    </tbody>
-                <input type="hidden" value="{{ exam }}" name="paper">
+<!-- Bootstrap Icons CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="{% static 'css/student_dashboard.css' %}">
+<div class="container mt-4">
+  {% include 'partials/_messages.html' %}
+</div>
+<div class="hero-section">
+  <h1>Previous Exams & Results</h1>
+  <p>View your completed exams and results below.</p>
+</div>
+<div class="container mt-4">
+  {% if completed %}
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover align-middle">
+        <thead class="thead" style="color: #fff; background-color: #3182ce;">
+          <tr>
+            <th scope="col">Exam Name</th>
+            <th scope="col">Exam Title</th>
+            <th scope="col">Exam Professor</th>
+            <th scope="col">Attempt Time</th>
+            <th scope="col">Score</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for exam in completed %}
+            {% for attempt in exam.attempts %}
+            <tr>
+              <td>{{ exam.name }}</td>
+              <td>{{ exam.question_paper.qPaperTitle }}</td>
+              <td>{{ exam.professor }}</td>
+              <td>{{ attempt.started_at|date:'Y-m-d H:i:s' }}</td>
+              <td>{{ attempt.score }}</td>
+              <td>
+                <a href="{% url 'review_answers' exam.id %}?attempt_id={{ attempt.id }}" class="btn btn-sm btn-primary">
+                  <i class="bi bi-bar-chart"></i> Review
+                </a>
+              </td>
+            </tr>
             {% endfor %}
-            </table>
-        {% else %}
-            <div class="jumbotron col-md-12 text-center bg-success">
-                NO EXAMS
-            </div>
-        {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-
+  {% else %}
+    <div class="dashboard-card" style="width:100%;min-height:120px;justify-content:center;align-items:center;">
+      <span class="icon"><i class="bi bi-emoji-frown"></i></span>
+      <h2>No Previous Exams</h2>
+    </div>
+  {% endif %}
+</div>
 {% endblock %}

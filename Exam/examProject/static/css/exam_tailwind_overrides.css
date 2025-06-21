@@ -1,0 +1,9 @@
+/* exam_tailwind_overrides.css */
+body, .font-inter {
+  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Arial', sans-serif !important;
+}
+.exam-card-custom-shadow {
+  box-shadow: 0 4px 24px rgba(44, 62, 80, 0.12);
+}
+
+/* Add any additional overrides as needed */ 

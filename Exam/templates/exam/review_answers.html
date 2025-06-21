@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="{% static 'css/exam_tailwind_overrides.css' %}" rel="stylesheet">
+{% endblock %}
+{% block body %}
+<div class="min-h-screen bg-gray-100 p-4 font-inter">
+  <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-6 mt-8">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Review Your Answers for {{ exam.name }}</h2>
+    <div class="mb-6 p-4 bg-gray-50 rounded-lg shadow flex flex-wrap gap-6 justify-between items-center">
+      <div><strong>Total Marks Scored:</strong> <span class="text-green-700 font-bold">{{ summary.total_marks }}</span> / <span class="text-gray-700">{{ summary.total_possible_marks }}</span></div>
+      <div><strong>Correct:</strong> <span class="text-green-700 font-bold">{{ summary.correct }}</span></div>
+      <div><strong>Wrong:</strong> <span class="text-red-700 font-bold">{{ summary.wrong }}</span></div>
+      <div><strong>Not Attempted:</strong> <span class="text-yellow-700 font-bold">{{ summary.not_attempted }}</span></div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 bg-white rounded-lg shadow">
+        <thead class="bg-blue-100">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">#</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Question</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Your Answer</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Correct Answer</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          {% for item in review_data %}
+          <tr class="hover:bg-blue-50">
+            <td class="px-4 py-2">{{ forloop.counter }}</td>
+            <td class="px-4 py-2">{{ item.question }}</td>
+            <td class="px-4 py-2">{{ item.student_answer }}</td>
+            <td class="px-4 py-2">{{ item.correct_answer }}</td>
+            <td class="px-4 py-2">
+              {% if item.student_answer == "" %}
+                <span class="font-bold text-yellow-600">Not Attempted</span>
+              {% elif item.is_correct %}
+                <span class="font-bold text-green-600">Correct</span>
+              {% else %}
+                <span class="font-bold text-red-600">Wrong</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="text-center mt-6">
+      <a href="{% url 'view_exams_student' %}" class="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold shadow hover:bg-blue-700 transition">Back to Exams</a>
+    </div>
+  </div>
+</div>
+{% endblock %} 

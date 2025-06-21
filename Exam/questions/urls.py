@@ -10,6 +10,7 @@ urlpatterns = [
     path('student/viewexams/',views.view_exams_student,name="view_exams_student"),
     path('student/previous/',views.student_view_previous,name="student-previous"),
     path('student/appear/<int:id>',views.appear_exam,name = "appear-exam"),
-    path('student/result/<int:id>',views.result,name = "result"),
-    path('student/attendance/',views.view_students_attendance,name="view_students_attendance")
+    path('student/attendance/',views.view_students_attendance,name="view_students_attendance"),
+    path('prof/upload-questions-excel/',views.upload_questions_excel,name="upload_questions_excel"),
+    path('student/answers/<int:exam_id>/',views.review_answers,name="review_answers"),
 ]

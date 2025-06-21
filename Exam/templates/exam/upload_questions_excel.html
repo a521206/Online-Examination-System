@@ -1,0 +1,95 @@
+{% extends 'base_faculty.html' %}
+{% load get_item %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2>Upload Question Bank (Excel)</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% if preview_data %}
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="file_b64" value="{{ file_b64 }}">
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>Row</th>
+                            {% for col in columns %}
+                                <th>{{ col }}</th>
+                            {% endfor %}
+                            <th>Error</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in preview_data %}
+                            {% with row_idx=forloop.counter0 %}
+                            <tr>
+                                {% with has_error=False row_error_msg="" %}
+                                    {% for error in error_rows %}
+                                        {% if error.row == row_idx|add:2 %}
+                                            {% with has_error=True %}
+                                                {% with row_error_msg="Missing/invalid: "|add:error.columns|join:", " %}{% endwith %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <td>
+                                        <input type="checkbox" name="selected_rows" value="{{ row_idx }}" {% if has_error %}disabled{% else %}checked{% endif %}>
+                                    </td>
+                                {% endwith %}
+                                <td>{{ row_idx|add:2 }}</td>
+                                {% for col in columns %}
+                                    {% with cell_error=False %}
+                                        {% for error in error_rows %}
+                                            {% if error.row == row_idx|add:2 and col in error.columns %}
+                                                {% with cell_error=True %}{% endwith %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        <td {% if cell_error %}style="background:#ffcccc; color:#a94442; font-weight:bold;"{% endif %}>{{ row|get_item:col }}</td>
+                                    {% endwith %}
+                                {% endfor %}
+                                <td>
+                                    {% for error in error_rows %}
+                                        {% if error.row == row_idx|add:2 %}
+                                            <span style="color:#a94442; font-weight:bold;">Missing/invalid: {{ error.columns|join:", " }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">Upload Selected</button>
+            <a href="{% url 'faculty-addquestions' %}" class="btn btn-secondary mt-2">Back to Manual Add</a>
+        </form>
+        <div class="alert alert-danger mt-3">Rows and columns highlighted in red have missing or invalid data. Only valid, selected rows will be uploaded.</div>
+    {% else %}
+        <form method="post" enctype="multipart/form-data" class="mb-3">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="excel_file">Select Excel file (.xlsx or .csv):</label>
+                <input type="file" name="excel_file" id="excel_file" class="form-control" accept=".xlsx,.csv" required>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">Upload</button>
+            <a href="{% url 'faculty-addquestions' %}" class="btn btn-secondary mt-2">Back to Manual Add</a>
+        </form>
+        <div class="alert alert-info mt-3">
+            <strong>Excel Template:</strong> The file must have columns: <code>question</code>, <code>optionA</code>, <code>optionB</code>, <code>optionC</code>, <code>optionD</code>, <code>answer</code>, <code>max_marks</code>.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% comment %}
+Helper filter to get dict item by key in Django template:
+In your project, add this to a templatetags file if not already present:
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key, '')
+{% endcomment %} 

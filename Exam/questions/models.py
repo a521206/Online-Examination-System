@@ -4,17 +4,24 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from .questionpaper_models import Question_Paper
 from django import forms
+from django.utils import timezone
+from datetime import timedelta
 
 class Exam_Model(models.Model):
     professor = models.ForeignKey(User, limit_choices_to={'groups__name': "Professor"}, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     total_marks = models.IntegerField()
     question_paper = models.ForeignKey(Question_Paper, on_delete=models.CASCADE, related_name='exams')
-    start_time = models.DateTimeField(default=datetime.now())
-    end_time = models.DateTimeField(default=datetime.now())
+    start_time = models.DateTimeField(default=timezone.now)
+    end_time = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.end_time:
+            self.end_time = self.start_time + timedelta(minutes=60)
+        super().save(*args, **kwargs)
 
 
 class ExamForm(ModelForm):

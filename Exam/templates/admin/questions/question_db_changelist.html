@@ -1,0 +1,12 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools %}
+    <div class="object-tools">
+        <ul class="object-tools">
+            <li>
+                <a href="{% url 'upload_questions_excel' %}" class="addlink">Upload Questions via Excel</a>
+            </li>
+        </ul>
+    </div>
+    {{ block.super }}
+{% endblock %} 
