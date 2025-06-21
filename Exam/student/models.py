@@ -31,13 +31,26 @@ class StuExamAttempt(models.Model):
     exam = models.ForeignKey(Exam_Model, on_delete=models.CASCADE)
     qpaper = models.ForeignKey(Question_Paper, on_delete=models.CASCADE)
     questions = models.ManyToManyField(Stu_Question)
+    selected_questions = models.ManyToManyField(Question_DB, related_name='attempts')
     started_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     score = models.IntegerField(default=0)
-    random_qids = models.CharField(max_length=500, blank=True, null=True)
+    random_qids = models.CharField(max_length=500, blank=True, null=True)  # Keep for backward compatibility
 
     def __str__(self):
         return f"{self.student.username} - {self.exam.name} - {self.started_at}"
+    
+    def get_selected_questions(self):
+        """Get the questions selected for this attempt"""
+        if self.selected_questions.exists():
+            return self.selected_questions.all().order_by('qno')
+        elif self.random_qids:
+            # Fallback to old method for backward compatibility
+            qids = [int(qid) for qid in self.random_qids.split(',')]
+            return Question_DB.objects.filter(qno__in=qids).order_by('qno')
+        else:
+            # If no questions selected, return first 10 from question paper
+            return self.qpaper.questions.all()[:10]
 
 
 class StuResults_DB(models.Model):

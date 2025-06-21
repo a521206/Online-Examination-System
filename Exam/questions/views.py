@@ -173,17 +173,28 @@ def view_results_prof(request):
 @login_required(login_url='login')
 def view_exams_student(request):
     exams = Exam_Model.objects.all()
-    list_of_completed = []
-    list_un = []
+    available_exams = []
+    completed_exams = []
+    
     for exam in exams:
-        if StuExamAttempt.objects.filter(student=request.user, exam=exam).exists():
-            list_of_completed.append(exam)
+        attempts = StuExamAttempt.objects.filter(student=request.user, exam=exam)
+        if attempts.exists():
+            # Student has attempted this exam before
+            latest_attempt = attempts.order_by('-started_at').first()
+            completed_exams.append({
+                'exam': exam,
+                'attempt_count': attempts.count(),
+                'latest_score': latest_attempt.score,
+                'latest_attempt_date': latest_attempt.completed_at,
+                'best_score': max(attempt.score for attempt in attempts)
+            })
         else:
-            list_un.append(exam)
+            # Student hasn't attempted this exam yet
+            available_exams.append(exam)
 
     return render(request,'exam/mainexamstudent.html',{
-        'exams':list_un,
-        'completed':list_of_completed
+        'available_exams': available_exams,
+        'completed_exams': completed_exams
     })
 
 @login_required(login_url='login')
@@ -224,22 +235,31 @@ def appear_exam(request, id):
                 attempt = None
         else:
             attempt = None
+        
         if not attempt:
+            # Create new attempt
             attempt = StuExamAttempt.objects.create(student=student, exam=exam, qpaper=exam.question_paper)
             request.session[f'exam_{exam.id}_attempt_id'] = attempt.id
-        # Randomize questions for this attempt
-        all_questions = list(exam.question_paper.questions.all())
-        if len(all_questions) > 10:
-            if not attempt.random_qids:
+            
+            # Select and store random questions for this attempt
+            all_questions = list(exam.question_paper.questions.all())
+            if len(all_questions) > 10:
+                # Randomly select 10 questions
                 random_qs = random.sample(all_questions, 10)
+                # Store the selected questions directly in the attempt
+                attempt.selected_questions.set(random_qs)
+                # Also store IDs for backward compatibility
                 attempt.random_qids = ','.join(str(q.qno) for q in random_qs)
-                attempt.save()
             else:
-                qids = [int(qid) for qid in attempt.random_qids.split(',')]
-                random_qs = [q for q in all_questions if q.qno in qids]
-        else:
-            random_qs = all_questions
-        paginator = Paginator(random_qs, QUESTIONS_PER_PAGE)
+                # If 10 or fewer questions, use all questions
+                attempt.selected_questions.set(all_questions)
+                attempt.random_qids = ','.join(str(q.qno) for q in all_questions)
+            attempt.save()
+        
+        # Get the questions selected for this attempt
+        selected_questions = attempt.get_selected_questions()
+        
+        paginator = Paginator(selected_questions, QUESTIONS_PER_PAGE)
         page_number = request.GET.get('page', 1)
         page_obj = paginator.get_page(page_number)
         answers = request.session.get(f'exam_{exam.id}_answers', {})
@@ -256,30 +276,35 @@ def appear_exam(request, id):
             "answers": answers,
         }
         return render(request, 'exam/giveExam.html', context)
+    
     if request.method == 'POST':
         paper = request.POST['paper']
         examMain = Exam_Model.objects.get(name=paper)
         attempt_id = request.session.get(f'exam_{examMain.id}_attempt_id')
         attempt = StuExamAttempt.objects.get(id=attempt_id, student=student, exam=examMain)
-        all_questions = list(examMain.question_paper.questions.all())
-        if attempt.random_qids:
-            qids = [int(qid) for qid in attempt.random_qids.split(',')]
-            qPaperQuestionsList = [q for q in all_questions if q.qno in qids]
-        else:
-            qPaperQuestionsList = all_questions[:10]
-        paginator = Paginator(qPaperQuestionsList, 5)
+        
+        # Get the questions selected for this attempt
+        selected_questions = list(attempt.get_selected_questions())
+        
+        paginator = Paginator(selected_questions, 5)
         page_number = int(request.POST.get('page', 1))
         answers = request.session.get(f'exam_{examMain.id}_answers', {})
+        
+        # Collect answers from the current page
         for ques in paginator.get_page(page_number).object_list:
             ans = request.POST.get(ques.question, None)
             if ans is not None:
                 answers[str(ques.qno)] = ans
         request.session[f'exam_{examMain.id}_answers'] = answers
+        
+        # If not the last page and not final submit, go to next page
         if page_number < paginator.num_pages and 'final_submit' not in request.POST:
             next_page = page_number + 1
             return redirect(f"{request.path}?page={next_page}")
+        
+        # Final submission - save all answers and calculate score
         attempt.questions.clear()
-        for ques in qPaperQuestionsList:
+        for ques in selected_questions:
             student_question = Stu_Question.objects.create(
                 student=student,
                 question=ques.question,
@@ -291,20 +316,48 @@ def appear_exam(request, id):
                 choice=answers.get(str(ques.qno), "")
             )
             attempt.questions.add(student_question)
+        
         attempt.completed_at = timezone.now()
+        
         # Calculate score
         examScore = 0
-        for ques in qPaperQuestionsList:
+        for ques in selected_questions:
             student_ans = answers.get(str(ques.qno), "")
             if student_ans.lower() == ques.answer.lower() or student_ans == ques.answer:
                 examScore += ques.max_marks
         attempt.score = examScore
         attempt.save()
+        
+        # Clean up session data
         if f'exam_{examMain.id}_answers' in request.session:
             del request.session[f'exam_{examMain.id}_answers']
         if f'exam_{examMain.id}_attempt_id' in request.session:
             del request.session[f'exam_{examMain.id}_attempt_id']
+        
         return redirect('review_answers', exam_id=examMain.id)
+
+@login_required(login_url='login')
+def view_exam_attempts(request, exam_id):
+    """View all attempts for a specific exam"""
+    student = request.user
+    exam = Exam_Model.objects.get(pk=exam_id)
+    attempts = StuExamAttempt.objects.filter(student=student, exam=exam).order_by('-started_at')
+    
+    attempts_data = []
+    for attempt in attempts:
+        attempts_data.append({
+            'attempt': attempt,
+            'score': attempt.score,
+            'started_at': attempt.started_at,
+            'completed_at': attempt.completed_at,
+            'duration': attempt.completed_at - attempt.started_at if attempt.completed_at else None,
+            'question_count': attempt.selected_questions.count()
+        })
+    
+    return render(request, 'exam/exam_attempts.html', {
+        'exam': exam,
+        'attempts': attempts_data
+    })
 
 @login_required(login_url='login')
 def review_answers(request, exam_id):
@@ -319,14 +372,8 @@ def review_answers(request, exam_id):
     if not attempt:
         return render(request, 'exam/review_answers.html', {'exam': exam, 'review_data': [], 'summary': {}})
     
-    # Get only the questions that were selected for this specific attempt
-    all_questions = list(exam.question_paper.questions.all())
-    if attempt.random_qids:
-        qids = [int(qid) for qid in attempt.random_qids.split(',')]
-        questions = [q for q in all_questions if q.qno in qids]
-    else:
-        # Fallback: if no random_qids, take first 10 questions
-        questions = all_questions[:10]
+    # Get the questions that were selected for this specific attempt
+    questions = list(attempt.get_selected_questions())
     
     student_questions = attempt.questions.all()
     answer_map = {q.question: q.choice for q in student_questions}

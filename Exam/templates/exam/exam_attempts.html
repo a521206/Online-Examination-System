@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="{% static 'css/exam_tailwind_overrides.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-100 p-4 font-inter">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-800">{{ exam.name }}</h1>
+          <p class="text-gray-600 mt-2">Professor: {{ exam.professor }}</p>
+          <p class="text-gray-600">Question Paper: {{ exam.question_paper.qPaperTitle }}</p>
+        </div>
+        <div class="text-right">
+          <a href="{% url 'appear-exam' exam.id %}" class="inline-block px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition">
+            <i class="bi bi-plus-circle mr-2"></i>New Attempt
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attempts List -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+      <div class="px-6 py-4 bg-blue-50 border-b">
+        <h2 class="text-xl font-semibold text-gray-800">Your Attempts ({{ attempts|length }})</h2>
+      </div>
+      
+      {% if attempts %}
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Questions</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              {% for attempt_data in attempts %}
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  {{ forloop.counter }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <div>
+                    <div class="font-medium">{{ attempt_data.started_at|date:"M d, Y" }}</div>
+                    <div class="text-gray-500">{{ attempt_data.started_at|date:"H:i" }}</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {% if attempt_data.duration %}
+                    {{ attempt_data.duration|floatformat:0 }} min
+                  {% else %}
+                    <span class="text-gray-400">Incomplete</span>
+                  {% endif %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ attempt_data.question_count }} questions
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                    {% if attempt_data.score >= 80 %}bg-green-100 text-green-800
+                    {% elif attempt_data.score >= 60 %}bg-yellow-100 text-yellow-800
+                    {% else %}bg-red-100 text-red-800{% endif %}">
+                    {{ attempt_data.score }} marks
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <div class="flex space-x-2">
+                    <a href="{% url 'review_answers' exam.id %}?attempt_id={{ attempt_data.attempt.id }}" 
+                       class="text-blue-600 hover:text-blue-900">
+                      <i class="bi bi-eye mr-1"></i>View
+                    </a>
+                    {% if forloop.first %}
+                      <span class="text-green-600">
+                        <i class="bi bi-star-fill mr-1"></i>Latest
+                      </span>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="text-center py-12">
+          <i class="bi bi-emoji-frown text-6xl text-gray-400 mb-4"></i>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No Attempts Yet</h3>
+          <p class="text-gray-500">You haven't attempted this exam yet.</p>
+          <a href="{% url 'appear-exam' exam.id %}" class="inline-block mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Start Your First Attempt
+          </a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Back Button -->
+    <div class="mt-6 text-center">
+      <a href="{% url 'view_exams_student' %}" class="inline-block px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+        <i class="bi bi-arrow-left mr-2"></i>Back to Exams
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %} 

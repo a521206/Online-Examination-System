@@ -8,27 +8,64 @@
 <div class="container mt-4">
   {% include 'partials/_messages.html' %}
 </div>
+
+<!-- Available Exams Section -->
 <div class="hero-section">
   <h1>Available Exams</h1>
   <p>Browse and appear for your upcoming exams below.</p>
 </div>
 <div class="dashboard-cards">
-  {% if exams %}
-    {% for exam in exams %}
+  {% if available_exams %}
+    {% for exam in available_exams %}
       <div class="dashboard-card">
         <span class="icon"><i class="bi bi-journal-text"></i></span>
         <h2>{{ exam.name }}</h2>
         <p>Professor: {{ exam.professor }}</p>
         <p>Question Paper: {{ exam.question_paper.qPaperTitle }}</p>
         <div style="margin-top: 1em;">
-          <a href="{% url 'appear-exam' exam.id %}" class="btn btn-outline-primary">Appear</a>
+          <a href="{% url 'appear-exam' exam.id %}" class="btn btn-outline-primary">Start Exam</a>
         </div>
       </div>
     {% endfor %}
   {% else %}
     <div class="dashboard-card" style="width:100%;min-height:120px;justify-content:center;align-items:center;">
       <span class="icon"><i class="bi bi-emoji-frown"></i></span>
-      <h2>No Pending Exams</h2>
+      <h2>No New Exams Available</h2>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Completed Exams Section -->
+<div class="hero-section" style="margin-top: 3rem;">
+  <h1>Completed Exams</h1>
+  <p>Review your previous attempts and retake exams to improve your score.</p>
+</div>
+<div class="dashboard-cards">
+  {% if completed_exams %}
+    {% for exam_data in completed_exams %}
+      <div class="dashboard-card">
+        <span class="icon"><i class="bi bi-check-circle-fill" style="color: #28a745;"></i></span>
+        <h2>{{ exam_data.exam.name }}</h2>
+        <p>Professor: {{ exam_data.exam.professor }}</p>
+        <p>Question Paper: {{ exam_data.exam.question_paper.qPaperTitle }}</p>
+        <div class="exam-stats" style="margin: 1em 0; padding: 0.5em; background: #f8f9fa; border-radius: 5px;">
+          <p><strong>Attempts:</strong> {{ exam_data.attempt_count }}</p>
+          <p><strong>Latest Score:</strong> {{ exam_data.latest_score }}</p>
+          <p><strong>Best Score:</strong> {{ exam_data.best_score }}</p>
+          <p><strong>Last Attempt:</strong> {{ exam_data.latest_attempt_date|date:"M d, Y H:i" }}</p>
+        </div>
+        <div style="margin-top: 1em; display: flex; gap: 0.5em; flex-wrap: wrap;">
+          <a href="{% url 'appear-exam' exam_data.exam.id %}" class="btn btn-outline-success">Retake Exam</a>
+          <a href="{% url 'review_answers' exam_data.exam.id %}" class="btn btn-outline-info">View Latest Results</a>
+          <a href="{% url 'view_exam_attempts' exam_data.exam.id %}" class="btn btn-outline-secondary">View All Attempts</a>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="dashboard-card" style="width:100%;min-height:120px;justify-content:center;align-items:center;">
+      <span class="icon"><i class="bi bi-emoji-smile"></i></span>
+      <h2>No Completed Exams Yet</h2>
+      <p>Complete your first exam to see it here!</p>
     </div>
   {% endif %}
 </div>

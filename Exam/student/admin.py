@@ -6,12 +6,16 @@ def reset_exam_attempts(modeladmin, request, queryset):
     queryset.update(score=0, completed_at=None)
 
 class StuExamAttemptAdmin(admin.ModelAdmin):
-    list_display = ('student', 'exam', 'qpaper', 'started_at', 'completed_at', 'score')
+    list_display = ('student', 'exam', 'qpaper', 'started_at', 'completed_at', 'score', 'get_question_count')
     list_filter = ('exam', 'student', 'started_at', 'completed_at')
     search_fields = ('student__username', 'exam__name', 'qpaper__qPaperTitle')
-    readonly_fields = ('started_at', 'random_qids')
+    readonly_fields = ('started_at', 'random_qids', 'get_question_count')
     actions = [reset_exam_attempts]
     ordering = ('-started_at',)
+    
+    def get_question_count(self, obj):
+        return obj.selected_questions.count()
+    get_question_count.short_description = 'Questions Selected'
 
 class StuResultsDBAdmin(admin.ModelAdmin):
     list_display = ('student', 'get_attempt_count', 'get_total_score')

@@ -13,4 +13,5 @@ urlpatterns = [
     path('student/attendance/',views.view_students_attendance,name="view_students_attendance"),
     path('prof/upload-questions-excel/',views.upload_questions_excel,name="upload_questions_excel"),
     path('student/answers/<int:exam_id>/',views.review_answers,name="review_answers"),
+    path('student/attempts/<int:exam_id>/',views.view_exam_attempts,name="view_exam_attempts"),
 ]
