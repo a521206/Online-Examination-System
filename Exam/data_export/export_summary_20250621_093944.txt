@@ -1,0 +1,9 @@
+Data Export Summary - 2025-06-21 09:39:44
+==================================================
+
+Users: 3
+Students: 1
+Professors: 1
+Applicants: 0
+
+Export completed successfully!

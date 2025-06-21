@@ -1,8 +1,5 @@
 from django.db import models
-# from admission import models, views 
-from admission.models import *
-
-from django.db import models
+from django.contrib.auth.models import User
 
 class Session(models.Model):
     name = models.CharField(max_length=250)
@@ -32,7 +29,7 @@ class Grade(models.Model):
 
 class StudentAcceptance(models.Model):
     name = models.CharField(max_length=250)
-    matrix_No = models.ForeignKey(Student, on_delete=models.CASCADE)
+    matrix_No = models.ForeignKey(User, on_delete=models.CASCADE)
     has_paid_acceptance_fee = models.BooleanField(default=False)
     has_paid_school_fees = models.BooleanField(default=False)
     credit_units_limit = models.IntegerField(default=0)

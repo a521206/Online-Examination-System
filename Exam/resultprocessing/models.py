@@ -1,15 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
-from student.models import *
-from admission.models import *
-from course.models import *
+# Remove wildcard imports to avoid conflicts
+# from student.models import *
+# from admission.models import *
+# from course.models import *
+
 # Create your models here.
 
-class Student(models.Model):
+class ResultStudent(models.Model):
     name = models.CharField(max_length=250)
     # Add other student-related fields
 
-class Course(models.Model):
+class ResultCourse(models.Model):
     name = models.CharField(max_length=250)
     credit_units = models.IntegerField()
 
@@ -26,8 +28,8 @@ class ConfigMarks(models.Model):
     gp = models.FloatField()
 
 class Score(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    student = models.ForeignKey(ResultStudent, on_delete=models.CASCADE)
+    course = models.ForeignKey(ResultCourse, on_delete=models.CASCADE)
     assignment_score = models.FloatField()
     test_score = models.FloatField()
     exam_score = models.FloatField()

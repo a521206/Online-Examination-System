@@ -1,0 +1,71 @@
+{
+  "users": [
+    {
+      "model": "auth.User",
+      "fields": {
+        "username": "agraw",
+        "first_name": "",
+        "last_name": "",
+        "email": "vishal.agrawal@gmail.com",
+        "password": "argon2$argon2id$v=19$m=102400,t=2,p=8$OWRwNEtmRmRhZ1NrQjB2TkVxU0pCdQ$lGLau9YlIG4QNpQEljDc57PXd6Vcwgfiunk5VHVwql4",
+        "is_staff": true,
+        "is_active": true,
+        "is_superuser": true,
+        "date_joined": "2025-06-21T03:23:41.727742+00:00",
+        "last_login": "2025-06-21T03:53:52.301307+00:00"
+      }
+    },
+    {
+      "model": "auth.User",
+      "fields": {
+        "username": "stud1",
+        "first_name": "Abhi",
+        "last_name": "",
+        "email": "vishal@gmail.com",
+        "password": "argon2$argon2id$v=19$m=102400,t=2,p=8$Z2xMMkxyRE9XTVh4NVBuSERvQ1V6Ug$NflPOUe94ATcmRzzq1DUF3ccYO17uaZeUql73YCH2W0",
+        "is_staff": false,
+        "is_active": true,
+        "is_superuser": false,
+        "date_joined": "2025-06-21T03:30:10+00:00",
+        "last_login": "2025-06-21T03:38:08.038500+00:00"
+      }
+    },
+    {
+      "model": "auth.User",
+      "fields": {
+        "username": "prof1",
+        "first_name": "",
+        "last_name": "",
+        "email": "prof1@gmail.com",
+        "password": "argon2$argon2id$v=19$m=102400,t=2,p=8$R2JsbWxiTnFzQzhnejlTMkFhR3U0bg$5xmKZr8aymroDYqDNlh2X5DaG7TX09TjToTCyPV4XGg",
+        "is_staff": true,
+        "is_active": true,
+        "is_superuser": false,
+        "date_joined": "2025-06-21T03:31:02+00:00",
+        "last_login": null
+      }
+    }
+  ],
+  "students": [
+    {
+      "model": "student.StudentInfo",
+      "fields": {
+        "user_id": 2,
+        "address": "",
+        "picture": null
+      }
+    }
+  ],
+  "professors": [
+    {
+      "model": "faculty.FacultyInfo",
+      "fields": {
+        "user_id": 3,
+        "address": "",
+        "subject": "",
+        "picture": null
+      }
+    }
+  ],
+  "applicants": []
+}

@@ -27,7 +27,7 @@ class Stu_Question(models.Model):
     choice = models.CharField(max_length=10, blank=True, default='')
 
 class StuExamAttempt(models.Model):
-    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    student = models.ForeignKey(User, limit_choices_to={'groups__name': "Student"}, on_delete=models.CASCADE)
     exam = models.ForeignKey(Exam_Model, on_delete=models.CASCADE)
     qpaper = models.ForeignKey(Question_Paper, on_delete=models.CASCADE)
     questions = models.ManyToManyField(Stu_Question)
@@ -39,22 +39,10 @@ class StuExamAttempt(models.Model):
     def __str__(self):
         return f"{self.student.username} - {self.exam.name} - {self.started_at}"
 
-class StuExam_DB(models.Model):
-    student = models.ForeignKey(User, limit_choices_to={'groups__name': "Student"}, on_delete=models.CASCADE, null=True)
-    examname = models.CharField(max_length=100)
-    qpaper = models.ForeignKey(Question_Paper, on_delete=models.CASCADE, null=True)
-    questions = models.ManyToManyField(Stu_Question)
-    score = models.IntegerField(default=0)
-    completed = models.IntegerField(default=0)
-    started_at = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
-        return str(self.student.username) +" " + str(self.examname) + " " + str(self.qpaper.qPaperTitle) + "-StuExam_DB"
-
 
 class StuResults_DB(models.Model):
     student = models.ForeignKey(User, limit_choices_to={'groups__name': "Student"}, on_delete=models.CASCADE, null=True)
-    exams = models.ManyToManyField(StuExam_DB)
+    attempts = models.ManyToManyField(StuExamAttempt)
 
     def __str__(self):
         return str(self.student.username) +" -StuResults_DB"

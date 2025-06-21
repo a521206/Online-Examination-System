@@ -1,20 +1,34 @@
 from django.contrib import admin
 from .models import *
 
-@admin.action(description='Mark selected as Completed')
-def mark_completed(modeladmin, request, queryset):
-    queryset.update(completed=1)
+@admin.action(description='Reset selected Exam Attempts')
+def reset_exam_attempts(modeladmin, request, queryset):
+    queryset.update(score=0, completed_at=None)
 
-@admin.action(description='Reset selected Exams')
-def reset_exam(modeladmin, request, queryset):
-    queryset.update(completed=0, score=0)
+class StuExamAttemptAdmin(admin.ModelAdmin):
+    list_display = ('student', 'exam', 'qpaper', 'started_at', 'completed_at', 'score')
+    list_filter = ('exam', 'student', 'started_at', 'completed_at')
+    search_fields = ('student__username', 'exam__name', 'qpaper__qPaperTitle')
+    readonly_fields = ('started_at', 'random_qids')
+    actions = [reset_exam_attempts]
+    ordering = ('-started_at',)
 
-class StuExamDBAdmin(admin.ModelAdmin):
-    list_display = ('student', 'examname', 'qpaper', 'completed', 'score')
-    actions = [mark_completed, reset_exam]
-    change_list_template = "admin/student/stuexam_db_changelist.html"
+class StuResultsDBAdmin(admin.ModelAdmin):
+    list_display = ('student', 'get_attempt_count', 'get_total_score')
+    list_filter = ('student',)
+    search_fields = ('student__username', 'student__first_name', 'student__last_name')
+    readonly_fields = ('get_attempt_count', 'get_total_score')
+    
+    def get_attempt_count(self, obj):
+        return obj.attempts.count()
+    get_attempt_count.short_description = 'Number of Attempts'
+    
+    def get_total_score(self, obj):
+        total = sum(attempt.score for attempt in obj.attempts.all())
+        return total
+    get_total_score.short_description = 'Total Score'
 
 admin.site.register(StudentInfo)
 admin.site.register(Stu_Question)
-admin.site.register(StuExam_DB, StuExamDBAdmin)
-admin.site.register(StuResults_DB)
+admin.site.register(StuExamAttempt, StuExamAttemptAdmin)
+admin.site.register(StuResults_DB, StuResultsDBAdmin)

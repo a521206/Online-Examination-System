@@ -4,9 +4,9 @@ from .models import *
 from django.contrib.auth.models import Group
 from student.models import *
 from django.utils import timezone
-from student.models import StuExam_DB,StuResults_DB
 from questions.questionpaper_models import QPForm
 from questions.question_models import QForm, Question_DB
+from questions.models import ExamForm
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from datetime import timedelta
@@ -141,7 +141,7 @@ def view_students_prof(request):
         student_name.append(student.username)
         count = 0
         for exam in examn:
-            if StuExam_DB.objects.filter(student=student,examname=exam.name,completed=1).exists():
+            if StuExamAttempt.objects.filter(student=student, exam=exam).exists():
                 count += 1
             else:
                 count += 0
@@ -162,11 +162,10 @@ def view_results_prof(request):
     professor = User.objects.get(username=prof.username)
     examn = Exam_Model.objects.filter(professor=professor)
     for exam in examn:
-        if StuExam_DB.objects.filter(examname=exam.name,completed=1).exists():
-            students_filter = StuExam_DB.objects.filter(examname=exam.name,completed=1)
-            for student in students_filter:
-                key = str(student.student) + " " + str(student.examname) + " " + str(student.qpaper.qPaperTitle)
-                dicts[key] = student.score
+        attempts = StuExamAttempt.objects.filter(exam=exam)
+        for attempt in attempts:
+            key = f"{attempt.student.username} {attempt.exam.name} {attempt.qpaper.qPaperTitle}"
+            dicts[key] = attempt.score
     return render(request, 'exam/resultsstudent.html', {
         'students':dicts
     })
@@ -177,9 +176,8 @@ def view_exams_student(request):
     list_of_completed = []
     list_un = []
     for exam in exams:
-        if StuExam_DB.objects.filter(examname=exam.name ,student=request.user).exists():
-            if StuExam_DB.objects.get(examname=exam.name,student=request.user).completed == 1:
-                list_of_completed.append(exam)
+        if StuExamAttempt.objects.filter(student=request.user, exam=exam).exists():
+            list_of_completed.append(exam)
         else:
             list_un.append(exam)
 
@@ -194,9 +192,8 @@ def view_students_attendance(request):
     list_of_completed = []
     list_un = []
     for exam in exams:
-        if StuExam_DB.objects.filter(examname=exam.name ,student=request.user).exists():
-            if StuExam_DB.objects.get(examname=exam.name,student=request.user).completed == 1:
-                list_of_completed.append(exam)
+        if StuExamAttempt.objects.filter(student=request.user, exam=exam).exists():
+            list_of_completed.append(exam)
         else:
             list_un.append(exam)
 
@@ -238,7 +235,8 @@ def appear_exam(request, id):
                 attempt.random_qids = ','.join(str(q.qno) for q in random_qs)
                 attempt.save()
             else:
-                random_qs = [q for q in all_questions if str(q.qno) in attempt.random_qids.split(',')]
+                qids = [int(qid) for qid in attempt.random_qids.split(',')]
+                random_qs = [q for q in all_questions if q.qno in qids]
         else:
             random_qs = all_questions
         paginator = Paginator(random_qs, QUESTIONS_PER_PAGE)
@@ -320,7 +318,16 @@ def review_answers(request, exam_id):
         attempt = StuExamAttempt.objects.filter(student=student, exam=exam).order_by('-started_at').first()
     if not attempt:
         return render(request, 'exam/review_answers.html', {'exam': exam, 'review_data': [], 'summary': {}})
-    questions = exam.question_paper.questions.all()
+    
+    # Get only the questions that were selected for this specific attempt
+    all_questions = list(exam.question_paper.questions.all())
+    if attempt.random_qids:
+        qids = [int(qid) for qid in attempt.random_qids.split(',')]
+        questions = [q for q in all_questions if q.qno in qids]
+    else:
+        # Fallback: if no random_qids, take first 10 questions
+        questions = all_questions[:10]
+    
     student_questions = attempt.questions.all()
     answer_map = {q.question: q.choice for q in student_questions}
     review_data = []
