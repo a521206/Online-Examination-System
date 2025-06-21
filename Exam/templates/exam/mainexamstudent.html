@@ -2,72 +2,142 @@
 {% load static %}
 
 {% block body %}
-<!-- Bootstrap Icons CDN -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<link rel="stylesheet" href="{% static 'css/student_dashboard.css' %}">
-<div class="container mt-4">
-  {% include 'partials/_messages.html' %}
-</div>
-
 <!-- Available Exams Section -->
-<div class="hero-section">
-  <h1>Available Exams</h1>
-  <p>Browse and appear for your upcoming exams below.</p>
-</div>
-<div class="dashboard-cards">
-  {% if available_exams %}
-    {% for exam in available_exams %}
-      <div class="dashboard-card">
-        <span class="icon"><i class="bi bi-journal-text"></i></span>
-        <h2>{{ exam.name }}</h2>
-        <p>Professor: {{ exam.professor }}</p>
-        <p>Question Paper: {{ exam.question_paper.qPaperTitle }}</p>
-        <div style="margin-top: 1em;">
-          <a href="{% url 'appear-exam' exam.id %}" class="btn btn-outline-primary">Start Exam</a>
-        </div>
-      </div>
-    {% endfor %}
-  {% else %}
-    <div class="dashboard-card" style="width:100%;min-height:120px;justify-content:center;align-items:center;">
-      <span class="icon"><i class="bi bi-emoji-frown"></i></span>
-      <h2>No New Exams Available</h2>
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Page Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Available Exams</h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            Browse and appear for your upcoming exams below.
+        </p>
     </div>
-  {% endif %}
-</div>
 
-<!-- Completed Exams Section -->
-<div class="hero-section" style="margin-top: 3rem;">
-  <h1>Completed Exams</h1>
-  <p>Review your previous attempts and retake exams to improve your score.</p>
-</div>
-<div class="dashboard-cards">
-  {% if completed_exams %}
-    {% for exam_data in completed_exams %}
-      <div class="dashboard-card">
-        <span class="icon"><i class="bi bi-check-circle-fill" style="color: #28a745;"></i></span>
-        <h2>{{ exam_data.exam.name }}</h2>
-        <p>Professor: {{ exam_data.exam.professor }}</p>
-        <p>Question Paper: {{ exam_data.exam.question_paper.qPaperTitle }}</p>
-        <div class="exam-stats" style="margin: 1em 0; padding: 0.5em; background: #f8f9fa; border-radius: 5px;">
-          <p><strong>Attempts:</strong> {{ exam_data.attempt_count }}</p>
-          <p><strong>Latest Score:</strong> {{ exam_data.latest_score }}</p>
-          <p><strong>Best Score:</strong> {{ exam_data.best_score }}</p>
-          <p><strong>Last Attempt:</strong> {{ exam_data.latest_attempt_date|date:"M d, Y H:i" }}</p>
-        </div>
-        <div style="margin-top: 1em; display: flex; gap: 0.5em; flex-wrap: wrap;">
-          <a href="{% url 'appear-exam' exam_data.exam.id %}" class="btn btn-outline-success">Retake Exam</a>
-          <a href="{% url 'review_answers' exam_data.exam.id %}" class="btn btn-outline-info">View Latest Results</a>
-          <a href="{% url 'view_exam_attempts' exam_data.exam.id %}" class="btn btn-outline-secondary">View All Attempts</a>
-        </div>
-      </div>
-    {% endfor %}
-  {% else %}
-    <div class="dashboard-card" style="width:100%;min-height:120px;justify-content:center;align-items:center;">
-      <span class="icon"><i class="bi bi-emoji-smile"></i></span>
-      <h2>No Completed Exams Yet</h2>
-      <p>Complete your first exam to see it here!</p>
+    <!-- Available Exams Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        {% if available_exams %}
+            {% for exam in available_exams %}
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="bi bi-journal-text text-3xl text-blue-600"></i>
+                    </div>
+                    
+                    <h2 class="text-2xl font-bold text-gray-900 mb-3">{{ exam.name }}</h2>
+                    
+                    <div class="space-y-2 mb-6">
+                        <p class="text-gray-600">
+                            <span class="font-medium">Professor:</span> {{ exam.professor }}
+                        </p>
+                        <p class="text-gray-600">
+                            <span class="font-medium">Question Paper:</span> {{ exam.question_paper.qPaperTitle }}
+                        </p>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <a href="{% url 'appear-exam' exam.id %}" 
+                           class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="bi bi-play-circle mr-2"></i>
+                            Start Exam
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-span-full">
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-12 text-center">
+                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="bi bi-emoji-frown text-4xl text-gray-400"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">No New Exams Available</h2>
+                    <p class="text-gray-600">Check back later for new exams!</p>
+                </div>
+            </div>
+        {% endif %}
     </div>
-  {% endif %}
+
+    <!-- Completed Exams Section -->
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Completed Exams</h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            Review your previous attempts and retake exams to improve your score.
+        </p>
+    </div>
+
+    <!-- Completed Exams Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% if completed_exams %}
+            {% for exam_data in completed_exams %}
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="bi bi-check-circle-fill text-3xl text-green-600"></i>
+                    </div>
+                    
+                    <h2 class="text-2xl font-bold text-gray-900 mb-3">{{ exam_data.exam.name }}</h2>
+                    
+                    <div class="space-y-2 mb-6">
+                        <p class="text-gray-600">
+                            <span class="font-medium">Professor:</span> {{ exam_data.exam.professor }}
+                        </p>
+                        <p class="text-gray-600">
+                            <span class="font-medium">Question Paper:</span> {{ exam_data.exam.question_paper.qPaperTitle }}
+                        </p>
+                    </div>
+                    
+                    <!-- Exam Statistics -->
+                    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="font-medium text-gray-700">Attempts:</span>
+                                <span class="text-gray-900">{{ exam_data.attempt_count }}</span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">Latest Score:</span>
+                                <span class="text-gray-900">{{ exam_data.latest_score }}</span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">Best Score:</span>
+                                <span class="text-gray-900">{{ exam_data.best_score }}</span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">Last Attempt:</span>
+                                <span class="text-gray-900">{{ exam_data.latest_attempt_date|date:"M d, Y H:i" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col space-y-3">
+                        <a href="{% url 'appear-exam' exam_data.exam.id %}" 
+                           class="inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="bi bi-arrow-clockwise mr-2"></i>
+                            Retake Exam
+                        </a>
+                        
+                        <a href="{% url 'review_answers' exam_data.exam.id %}" 
+                           class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="bi bi-eye mr-2"></i>
+                            View Latest Results
+                        </a>
+                        
+                        <a href="{% url 'view_exam_attempts' exam_data.exam.id %}" 
+                           class="inline-flex items-center justify-center px-4 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors">
+                            <i class="bi bi-list-ul mr-2"></i>
+                            View All Attempts
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-span-full">
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-12 text-center">
+                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="bi bi-emoji-smile text-4xl text-gray-400"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">No Completed Exams Yet</h2>
+                    <p class="text-gray-600">Complete your first exam to see it here!</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
 

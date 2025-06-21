@@ -14,10 +14,31 @@ import threading
 from django.contrib.auth.models import User
 from studentPreferences.models import StudentPreferenceModel
 from django.contrib.auth.models import Group
+from questions.models import Exam_Model
+from questions.questionpaper_models import Question_Paper
+from student.models import StuExamAttempt
 
 @login_required(login_url='login')
 def index(request):
-    return render(request,'student/index.html')
+    # Get statistics for the dashboard
+    total_exams = Exam_Model.objects.count()
+    completed_exams = StuExamAttempt.objects.filter(student=request.user).count()
+    
+    # Calculate average score
+    attempts = StuExamAttempt.objects.filter(student=request.user)
+    if attempts.exists():
+        total_score = sum(attempt.score for attempt in attempts)
+        average_score = (total_score / attempts.count()) if attempts.count() > 0 else 0
+    else:
+        average_score = 0
+    
+    context = {
+        'total_exams': total_exams,
+        'completed_exams': completed_exams,
+        'average_score': average_score,
+    }
+    
+    return render(request, 'student/index.html', context)
 
 class Register(View):
     def get(self,request):

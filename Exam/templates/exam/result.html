@@ -1,38 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block body %}
-<!-- Bootstrap Icons CDN -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<link rel="stylesheet" href="{% static 'css/student_dashboard.css' %}">
-<div class="container mt-4">
-  {% include 'partials/_messages.html' %}
-</div>
-<div class="hero-section">
-  <h1>Exam Result</h1>
-  <p>See your performance details below.</p>
-</div>
-<div class="container mt-4">
-  <div class="table-responsive">
-    <table class="table table-bordered table-hover align-middle">
-      <thead class="thead" style="color: #fff; background-color: #3182ce;">
-        <tr>
-          <th scope="col">Exam Professor</th>
-          <th scope="col">Exam Name</th>
-          <th scope="col">Exam Title</th>
-          <th scope="col">Marks Obtained</th>
-          <th scope="col">Total Marks</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>{{ exam.professor }}</td>
-          <td>{{ exam.name }}</td>
-          <td>{{ exam.question_paper.qPaperTitle }}</td>
-          <td><span class="badge bg-success" style="font-size:1.1em;">{{ score }}</span></td>
-          <td>{{ exam.total_marks }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+<!-- Content will be updated to use Tailwind classes -->
 {% endblock %}

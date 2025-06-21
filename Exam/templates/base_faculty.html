@@ -6,40 +6,26 @@
     <title>Exam Portal Faculty</title>
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/main.css' %}" rel="stylesheet">
-    <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
 </head>
 <body>
-  <style media="screen">
-    *{
-      color: #745959;
-    }
-    input[type=submit]:hover{
-            background-color: #87ff9b;
-    }
-  </style>
     <nav class="navbar navbar-light" style="background-color: #87ff9b">
-  <a href="{% url 'faculty-index' %}" style="color:#745959">Home</a>
-  <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <ul class="navbar-nav px-3" style="display:flex;flex-direction:row;align-items:center">
-    <li class="nav-item text-nowrap">
-      <a class="nav-link" href="#">{{request.user.username}}</a>
-    </li>
-  </ul>
-</nav>
+        <a href="{% url 'faculty-index' %}" style="color:#745959">Home</a>
+        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <ul class="navbar-nav px-3" style="display:flex;flex-direction:row;align-items:center">
+            <li class="nav-item text-nowrap">
+                <a class="nav-link" href="#">{{request.user.username}}</a>
+            </li>
+        </ul>
+    </nav>
 
     {% include 'partials/_sidebar_faculty.html' %}
 
+    {% block body %}
+    {% endblock %}
 
-      {% block body %}
-
-
-      {% endblock %}
-
-  
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="https://kit.fontawesome.com/a076d05399.js"></script>
-
 </body>
 </html>

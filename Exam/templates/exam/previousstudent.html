@@ -1,55 +1,162 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block body %}
-<!-- Bootstrap Icons CDN -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<link rel="stylesheet" href="{% static 'css/student_dashboard.css' %}">
-<div class="container mt-4">
-  {% include 'partials/_messages.html' %}
-</div>
-<div class="hero-section">
-  <h1>Previous Exams & Results</h1>
-  <p>View your completed exams and results below.</p>
-</div>
-<div class="container mt-4">
-  {% if completed %}
-    <div class="table-responsive">
-      <table class="table table-bordered table-hover align-middle">
-        <thead class="thead" style="color: #fff; background-color: #3182ce;">
-          <tr>
-            <th scope="col">Exam Name</th>
-            <th scope="col">Exam Title</th>
-            <th scope="col">Exam Professor</th>
-            <th scope="col">Attempt Time</th>
-            <th scope="col">Score</th>
-            <th scope="col">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for exam in completed %}
-            {% for attempt in exam.attempts %}
-            <tr>
-              <td>{{ exam.name }}</td>
-              <td>{{ exam.question_paper.qPaperTitle }}</td>
-              <td>{{ exam.professor }}</td>
-              <td>{{ attempt.started_at|date:'Y-m-d H:i:s' }}</td>
-              <td>{{ attempt.score }}</td>
-              <td>
-                <a href="{% url 'review_answers' exam.id %}?attempt_id={{ attempt.id }}" class="btn btn-sm btn-primary">
-                  <i class="bi bi-bar-chart"></i> Review
-                </a>
-              </td>
-            </tr>
-            {% endfor %}
-          {% endfor %}
-        </tbody>
-      </table>
+<!-- Page Header -->
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Previous Exams & Results</h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            View your completed exams and results below.
+        </p>
     </div>
-  {% else %}
-    <div class="dashboard-card" style="width:100%;min-height:120px;justify-content:center;align-items:center;">
-      <span class="icon"><i class="bi bi-emoji-frown"></i></span>
-      <h2>No Previous Exams</h2>
-    </div>
-  {% endif %}
+
+    <!-- Results Table -->
+    {% if completed %}
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-blue-600">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                                Exam Name
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                                Exam Title
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                                Professor
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                                Attempt Time
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                                Score
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for exam in completed %}
+                            {% for attempt in exam.attempts %}
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">{{ exam.name }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-600">{{ exam.question_paper.qPaperTitle }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-600">{{ exam.professor }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-600">
+                                            {{ attempt.started_at|date:'M d, Y H:i' }}
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                                                   {% if attempt.score >= 80 %}bg-green-100 text-green-800
+                                                   {% elif attempt.score >= 60 %}bg-yellow-100 text-yellow-800
+                                                   {% else %}bg-red-100 text-red-800{% endif %}">
+                                            {{ attempt.score }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-2">
+                                            <a href="{% url 'review_answers' exam.id %}?attempt_id={{ attempt.id }}" 
+                                               class="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                                                <i class="bi bi-bar-chart mr-1"></i>
+                                                Review
+                                            </a>
+                                            <a href="{% url 'view_exam_attempts' exam.id %}" 
+                                               class="inline-flex items-center px-3 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors">
+                                                <i class="bi bi-list-ul mr-1"></i>
+                                                All Attempts
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Summary Statistics -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="bi bi-file-earmark-text text-2xl text-blue-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Total Exams</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ total_exams }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="bi bi-check-circle text-2xl text-green-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Total Attempts</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ total_attempts }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <i class="bi bi-graph-up text-2xl text-yellow-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Average Score</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ average_score }}%</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                        <i class="bi bi-calendar-check text-2xl text-purple-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Last Attempt</p>
+                        <p class="text-2xl font-bold text-gray-900">
+                            {% if last_attempt_date %}
+                                {{ last_attempt_date|date:'M d' }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-12 text-center">
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="bi bi-emoji-frown text-4xl text-gray-400"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">No Previous Exams</h2>
+            <p class="text-gray-600 mb-6">You haven't completed any exams yet.</p>
+            <a href="{% url 'view_exams_student' %}" 
+               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="bi bi-play-circle mr-2"></i>
+                Take Your First Exam
+            </a>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

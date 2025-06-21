@@ -114,6 +114,7 @@ def student_view_previous(request):
     list_un = []
     exam_attempts_map = {}
     from student.models import StuExamAttempt
+    
     for exam in exams:
         attempts = StuExamAttempt.objects.filter(student=request.user, exam=exam).order_by('-started_at')
         if attempts.exists():
@@ -121,12 +122,36 @@ def student_view_previous(request):
             exam_attempts_map[exam.id] = attempts
         else:
             list_un.append(exam)
+    
     # Attach attempts to each exam for template
     for exam in list_of_completed:
         exam.attempts = exam_attempts_map.get(exam.id, [])
-    return render(request,'exam/previousstudent.html',{
-        'exams':list_un,
-        'completed':list_of_completed
+    
+    # Calculate statistics
+    total_exams = len(list_of_completed)
+    total_attempts = sum(len(attempts) for attempts in exam_attempts_map.values())
+    
+    # Calculate average score
+    total_score = 0
+    total_count = 0
+    last_attempt_date = None
+    
+    for attempts in exam_attempts_map.values():
+        for attempt in attempts:
+            total_score += attempt.score
+            total_count += 1
+            if last_attempt_date is None or attempt.started_at > last_attempt_date:
+                last_attempt_date = attempt.started_at
+    
+    average_score = round(total_score / total_count, 1) if total_count > 0 else 0
+    
+    return render(request, 'exam/previousstudent.html', {
+        'exams': list_un,
+        'completed': list_of_completed,
+        'total_exams': total_exams,
+        'total_attempts': total_attempts,
+        'average_score': average_score,
+        'last_attempt_date': last_attempt_date
     })
 
 @login_required(login_url='faculty-login')
@@ -237,8 +262,13 @@ def appear_exam(request, id):
             attempt = None
         
         if not attempt:
-            # Create new attempt
-            attempt = StuExamAttempt.objects.create(student=student, exam=exam, qpaper=exam.question_paper)
+            # Create new attempt with explicit started_at
+            attempt = StuExamAttempt.objects.create(
+                student=student, 
+                exam=exam, 
+                qpaper=exam.question_paper,
+                started_at=timezone.now()
+            )
             request.session[f'exam_{exam.id}_attempt_id'] = attempt.id
             
             # Select and store random questions for this attempt
@@ -263,16 +293,41 @@ def appear_exam(request, id):
         page_number = request.GET.get('page', 1)
         page_obj = paginator.get_page(page_number)
         answers = request.session.get(f'exam_{exam.id}_answers', {})
+        
+        # Calculate starting question number for this page
+        start_question_number = (page_obj.number - 1) * QUESTIONS_PER_PAGE + 1
+        
+        # Calculate remaining time based on attempt's end_time
+        from datetime import datetime
+        now = timezone.now()
+        if attempt.end_time and now < attempt.end_time:
+            time_remaining = attempt.end_time - now
+            total_seconds = int(time_remaining.total_seconds())
+            minutes = total_seconds // 60
+            seconds = total_seconds % 60
+        else:
+            # If attempt time has expired, redirect to time expired page
+            if attempt.end_time and now >= attempt.end_time:
+                # Auto-submit the exam if not already completed
+                if not attempt.completed_at:
+                    attempt.completed_at = now
+                    attempt.save()
+                return redirect('review_answers', exam_id=exam.id)
+            # If no end time set, set to 0
+            minutes = 0
+            seconds = 0
+        
         context = {
             "exam": exam,
             "question_list": page_obj.object_list,
             "page_obj": page_obj,
             "paginator": paginator,
             "page_number": int(page_number),
-            "secs": "00",  # Timer logic can be added if needed
-            "mins": "00",
+            "start_question_number": start_question_number,
+            "secs": str(seconds).zfill(2),
+            "mins": str(minutes),
             "student_started_at": attempt.started_at,
-            "student_end_time": None,
+            "student_end_time": attempt.end_time,
             "answers": answers,
         }
         return render(request, 'exam/giveExam.html', context)

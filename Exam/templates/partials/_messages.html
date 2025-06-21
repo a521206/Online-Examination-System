@@ -1,8 +1,20 @@
-
 {% if messages %}
-<div class="messages">
-    {% for message in messages %}
-    <div {% if message.tags %} class="alert alert-sm alert-{{ message.tags }}"{% endif %}>{{ message }}</div>
-    {% endfor %}
-</div>
+    <div class="mb-6">
+        {% for message in messages %}
+            <div class="message message-{{ message.tags }}">
+                <div class="message-icon">
+                    {% if message.tags == 'error' %}
+                        <i class="bi bi-exclamation-circle"></i>
+                    {% elif message.tags == 'success' %}
+                        <i class="bi bi-check-circle"></i>
+                    {% elif message.tags == 'warning' %}
+                        <i class="bi bi-exclamation-triangle"></i>
+                    {% else %}
+                        <i class="bi bi-info-circle"></i>
+                    {% endif %}
+                </div>
+                <div class="message-text">{{ message }}</div>
+            </div>
+        {% endfor %}
+    </div>
 {% endif %}

@@ -3,20 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam Portal Login</title>
-    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <title>{% block title %}Authentication{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="{% static 'css/main.css' %}" rel="stylesheet">
 </head>
-<body>
-  <style media="screen">
-  *{
-    color: #745959;
-  }
-
-  </style>
-    {% block body %}
-
-    {% endblock  %}
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
+    <div class="max-w-md w-full mx-auto">
+        {% block content %}{% endblock %}
+    </div>
 </body>
 </html>

@@ -2,47 +2,69 @@
 {% load static %}
 
 {% block body %}
-<!-- Bootstrap Icons CDN -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<link rel="stylesheet" href="{% static 'css/student_dashboard.css' %}">
-<div class="container mt-4">
-  {% include 'partials/_messages.html' %}
-</div>
-<div class="hero-section">
-  <h1>Account Preferences</h1>
-  <p>Manage your email notifications and password settings below.</p>
-</div>
-<div class="dashboard-cards" style="flex-wrap: wrap; justify-content: center; gap: 2rem;">
-  <!-- Email Notifications Card -->
-  <div class="dashboard-card" style="max-width: 400px; min-width: 280px; flex: 1 1 320px;">
-    <span class="icon"><i class="bi bi-envelope-paper"></i></span>
-    <h2>Email Notifications</h2>
-    <p style="color: #4a5568; font-size: 1rem; margin-bottom: 1.2em;">Receive an email when you log in to your account.</p>
-    <form method="post" action="{% url 'email-student-pref' %}" style="width:100%;">
-      {% csrf_token %}
-      <div class="input-group mb-3">
-        <select name="email_pref" class="custom-select form-control" id="inputGroupSelect04" aria-label="Example select with button addon">
-          {% if student_preference %}
-            <option selected name="email_pref" value="{{ student_preference.sendEmailOnLogin }}">{{ email_pref_value }}</option>
-            <option name="email_pref" value="False">Off</option>
-            <option name="email_pref" value="True">On</option>
-          {% else %}
-            <option selected name="email_pref" value="True">On</option>
-            <option name="email_pref" value="False">Off</option>
-          {% endif %}
-        </select>
-        <div class="input-group-append">
-          <button class="btn btn-outline-primary" type="submit" value="Save">Save</button>
+<!-- Page Header -->
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Account Preferences</h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            Manage your email notifications and password settings below.
+        </p>
+    </div>
+
+    <!-- Preferences Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <!-- Email Notifications Card -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
+                <i class="bi bi-envelope-paper text-3xl text-blue-600"></i>
+            </div>
+            
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">Email Notifications</h2>
+            <p class="text-gray-600 mb-6">
+                Receive an email when you log in to your account.
+            </p>
+            
+            <form method="post" action="{% url 'email-student-pref' %}" class="w-full">
+                {% csrf_token %}
+                <div class="flex gap-3">
+                    <select name="email_pref" 
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        {% if student_preference %}
+                            <option selected name="email_pref" value="{{ student_preference.sendEmailOnLogin }}">
+                                {{ email_pref_value }}
+                            </option>
+                            <option name="email_pref" value="False">Off</option>
+                            <option name="email_pref" value="True">On</option>
+                        {% else %}
+                            <option selected name="email_pref" value="True">On</option>
+                            <option name="email_pref" value="False">Off</option>
+                        {% endif %}
+                    </select>
+                    <button type="submit" 
+                            class="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                        Save
+                    </button>
+                </div>
+            </form>
         </div>
-      </div>
-    </form>
-  </div>
-  <!-- Change Password Card -->
-  <div class="dashboard-card" style="max-width: 400px; min-width: 280px; flex: 1 1 320px;">
-    <span class="icon"><i class="bi bi-key"></i></span>
-    <h2>Change Password</h2>
-    <p style="color: #4a5568; font-size: 1rem; margin-bottom: 1.2em;">Update your account password for better security.</p>
-    <a href="{% url 'change_password' %}" class="btn btn-warning btn-sm mt-2"><i class="bi bi-shield-lock"></i> Change Password</a>
-  </div>
+
+        <!-- Change Password Card -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
+            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-6">
+                <i class="bi bi-key text-3xl text-yellow-600"></i>
+            </div>
+            
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">Change Password</h2>
+            <p class="text-gray-600 mb-6">
+                Update your account password for better security.
+            </p>
+            
+            <a href="{% url 'change_password' %}" 
+               class="inline-flex items-center px-6 py-3 bg-yellow-600 text-white font-medium rounded-lg hover:bg-yellow-700 transition-colors">
+                <i class="bi bi-shield-lock mr-2"></i>
+                Change Password
+            </a>
+        </div>
+    </div>
 </div>
 {% endblock %}

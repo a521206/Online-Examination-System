@@ -33,12 +33,26 @@ class StuExamAttempt(models.Model):
     questions = models.ManyToManyField(Stu_Question)
     selected_questions = models.ManyToManyField(Question_DB, related_name='attempts')
     started_at = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     score = models.IntegerField(default=0)
     random_qids = models.CharField(max_length=500, blank=True, null=True)  # Keep for backward compatibility
 
     def __str__(self):
         return f"{self.student.username} - {self.exam.name} - {self.started_at}"
+    
+    def save(self, *args, **kwargs):
+        # Set started_at if not already set
+        if not self.started_at:
+            from django.utils import timezone
+            self.started_at = timezone.now()
+        
+        # Set end_time to 1 hour after started_at if not already set
+        if not self.end_time and self.started_at:
+            from datetime import timedelta
+            self.end_time = self.started_at + timedelta(hours=1)
+        
+        super().save(*args, **kwargs)
     
     def get_selected_questions(self):
         """Get the questions selected for this attempt"""

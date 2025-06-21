@@ -37,24 +37,66 @@ function mail(){
 }
 
 var milisec = 0;
-var seconds = document.getElementById("secs").value;
-var minutes = document.getElementById("mins").value
+var seconds = parseInt(document.getElementById("secs").value) || 0;
+var minutes = parseInt(document.getElementById("mins").value) || 0;
+
 function display() {
-    if (minutes == 0 && seconds == 0) {
-        document.getElementById("examform").submit();
+    // Check if time is up
+    if (minutes <= 0 && seconds <= 0) {
+        // Show warning and auto-submit
+        if (confirm("Time's up! Your exam will be submitted automatically.")) {
+            document.getElementById("examform").submit();
+        } else {
+            document.getElementById("examform").submit();
+        }
+        return;
     }
-    if (seconds == 0) {
-        minutes = minutes - 1
-        seconds = 60
+    
+    // Show warning when 5 minutes remaining
+    if (minutes === 5 && seconds === 0) {
+        alert("Warning: Only 5 minutes remaining!");
     }
-    seconds -= 1
-    document.getElementById("dsec").innerHTML = seconds
-    document.getElementById("dmin").innerHTML = minutes
-    document.getElementById("min-label").innerHTML = (minutes == 1) ? "min" : "mins";
-    document.getElementById("sec-label").innerHTML = (seconds == 1) ? "second" : "seconds";
-    setTimeout(display, 1000)
+    
+    // Show warning when 1 minute remaining
+    if (minutes === 1 && seconds === 0) {
+        alert("Warning: Only 1 minute remaining!");
+    }
+    
+    // Update display
+    if (seconds <= 0) {
+        minutes = minutes - 1;
+        seconds = 59;
+    } else {
+        seconds = seconds - 1;
+    }
+    
+    // Update DOM elements
+    var dsecElement = document.getElementById("dsec");
+    var dminElement = document.getElementById("dmin");
+    var minLabelElement = document.getElementById("min-label");
+    var secLabelElement = document.getElementById("sec-label");
+    
+    if (dsecElement) dsecElement.innerHTML = seconds.toString().padStart(2, '0');
+    if (dminElement) dminElement.innerHTML = minutes;
+    if (minLabelElement) minLabelElement.innerHTML = (minutes == 1) ? "min" : "mins";
+    if (secLabelElement) secLabelElement.innerHTML = (seconds == 1) ? "second" : "seconds";
+    
+    // Add warning colors when time is running low
+    if (minutes < 5) {
+        if (dminElement) dminElement.style.color = "#dc2626"; // red-600
+        if (dsecElement) dsecElement.style.color = "#dc2626"; // red-600
+    }
+    
+    // Continue countdown
+    setTimeout(display, 1000);
 }
-display()
+
+// Start the timer when page loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', display);
+} else {
+    display();
+}
 
 function getCookie(name) {
     var cookieValue = null;

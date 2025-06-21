@@ -1,162 +1,80 @@
 {% load static %}
-<style>
-  *{
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    text-decoration: none;
-  }
 
+<!-- Mobile overlay -->
+<div class="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 hidden lg:hidden" id="sidebarOverlay"></div>
 
-  .sidebar{
-    border-radius: 0.5em;
-    position: fixed;
-    top: 5em;
-    left: 0;
-    width: 17em;
-    height: 100%;
-    background: white;
-    transition: all .5s ease;
-    z-index: 1;
-    box-shadow: 0.3em 0.3em 0.2em #d6d6d6;
-  }
-
-  .sidebar header{
-    font-size: 2em;
-    color: #3182ce;
-    text-align: center;
-    line-height: 2em;
-    background: none;
-    user-select: none;
-    font-weight: 700;
-  }
-
-  .sidebar ul a{
-    color: #2a4365;
-    display: flex;
-    align-items: center;
-    gap: 0.7em;
-    font-size: 1.1em;
-    padding: 0.5em 0;
-    transition: background 0.2s, color 0.2s, padding-left 0.2s;
-  }
-
-  .sidebar li{
-    display: block;
-    width: 100%;
-    line-height: 2em;
-    font-size: 1.2em;
-    color: #2a4365;
-    padding-left: 1.5em;
-    box-sizing: border-box;
-    border-top: 0.1em solid rgba(44, 62, 80,0.07);
-  }
-
-  ul li:hover a{
-    padding-left: 1.5em;
-    color: #3182ce;
-    background: #e0eafc;
-    border-radius: 0.5em;
-    transition: 0.3s;
-  }
-
-  .sidebar ul a i {
-    font-size: 1.3em;
-    min-width: 1.5em;
-    text-align: center;
-  }
-
-  #check{
-    display:none;
-  }
-
-  label#sidebar-toggle {
-    position: absolute;
-    left: 1em;
-    top: 2.1em;
-    font-size: 2.5em;
-    color: #3182ce;
-    padding: 0.2em;
-    border-radius: 0.1em;
-    cursor: pointer;
-    z-index: 1002;
-    transition: all 0.5s;
-    background: white;
-    box-shadow: 0 2px 8px rgba(44,62,80,0.07);
-  }
-
-  label#sidebar-close {
-    position: absolute;
-    left: 15em;
-    top: 2.1em;
-    font-size: 2.5em;
-    color: #3182ce;
-    padding: 0.2em;
-    border-radius: 0.1em;
-    cursor: pointer;
-    z-index: 1002;
-    transition: all 0.5s;
-    background: white;
-    box-shadow: 0 2px 8px rgba(44,62,80,0.07);
-    display: none;
-  }
-
-  /* Mobile: sidebar hidden by default, toggled by checkbox */
-  @media (max-width: 900px) {
-    .sidebar {
-      left: -18em;
-    }
-    #check:checked ~ .sidebar {
-      left: 0;
-    }
-    label#sidebar-toggle {
-      display: block;
-    }
-    #check:checked ~ label#sidebar-toggle {
-      display: none;
-    }
-    #check:checked ~ label#sidebar-close {
-      display: block;
-    }
-    label#sidebar-close {
-      display: none;
-    }
-  }
-
-  /* Desktop: sidebar always visible, hide toggles */
-  @media (min-width: 901px) {
-    .sidebar {
-      left: 0 !important;
-    }
-    label#sidebar-toggle, label#sidebar-close {
-      display: none !important;
-    }
-    body {
-      margin-left: 17em;
-    }
-  }
-
-</style>
-<!-- Ensure Bootstrap Icons CDN is loaded in your base.html or index.html -->
-<input type="checkbox" id="check">
-<label for="check" id="sidebar-toggle">
-  <i class="bi bi-list"></i>
-</label>
-<label for="check" id="sidebar-close">
-  <i class="bi bi-x"></i>
-</label>
-<div class="sidebar">
-  <header>
-    Student Menu
-  </header>
-  <ul>
-    <li><a href="{% url 'index' %}"><i class="bi bi-house-door"></i> Dashboard</a></li>
-    <li><a href="{% url 'view_exams_student' %}"><i class="bi bi-journal-text"></i> Exams</a></li>
-    <li><a href="{% url 'student-previous' %}"><i class="bi bi-clipboard-data"></i> Summary</a></li>
-    <li><a href="{% url 'email-student-pref' %}"><i class="bi bi-gear"></i> Settings</a></li>
-    <form id="my_form" action="{% url 'logout' %}" method="POST" style="margin:0;">
-      {% csrf_token %}
-      <li style="border:none;"><a href="javascript:{}" onclick="document.getElementById('my_form').submit();"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
-    </form>
-  </ul>
+<!-- Mobile toggle button -->
+<div class="fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg border border-gray-200 cursor-pointer lg:hidden" id="sidebarToggle">
+    <i class="bi bi-list text-xl text-gray-700"></i>
 </div>
+
+<!-- Sidebar -->
+<aside class="fixed top-0 left-0 w-64 h-full bg-white shadow-xl border-r border-gray-200 transform transition-transform duration-300 ease-in-out z-50 lg:translate-x-0" id="sidebar">
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 h-16 flex items-center justify-center">
+        <h1 class="text-xl font-bold text-white">Exam Portal</h1>
+    </div>
+    
+    <div class="flex flex-col h-full">
+        <nav class="flex-1 p-6">
+            <div class="space-y-2">
+                <a href="{% url 'index' %}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors">
+                    <i class="bi bi-house text-lg mr-3"></i>
+                    <span class="font-medium">Dashboard</span>
+                </a>
+                
+                <a href="{% url 'view_exams_student' %}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors">
+                    <i class="bi bi-file-earmark-text text-lg mr-3"></i>
+                    <span class="font-medium">Take Exam</span>
+                </a>
+                
+                <a href="{% url 'student-previous' %}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors">
+                    <i class="bi bi-graph-up text-lg mr-3"></i>
+                    <span class="font-medium">View Results</span>
+                </a>
+                
+                <a href="{% url 'email-student-pref' %}" class="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors">
+                    <i class="bi bi-gear text-lg mr-3"></i>
+                    <span class="font-medium">Settings</span>
+                </a>
+            </div>
+        </nav>
+        
+        <div class="p-4 border-t border-gray-200">
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="w-full flex items-center px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors">
+                    <i class="bi bi-box-arrow-right text-lg mr-3"></i>
+                    <span class="font-medium">Logout</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</aside>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    
+    // Toggle sidebar on mobile
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('-translate-x-full');
+        sidebarOverlay.classList.toggle('hidden');
+    });
+    
+    // Close sidebar when clicking overlay
+    sidebarOverlay.addEventListener('click', function() {
+        sidebar.classList.add('-translate-x-full');
+        sidebarOverlay.classList.add('hidden');
+    });
+    
+    // Close sidebar on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('hidden');
+        }
+    });
+});
+</script>

@@ -1,54 +1,183 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block head %}
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link href="{% static 'css/exam_tailwind_overrides.css' %}" rel="stylesheet">
-{% endblock %}
+
 {% block body %}
-<div class="min-h-screen bg-gray-100 p-4 font-inter">
-  <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-6 mt-8">
-    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Review Your Answers for {{ exam.name }}</h2>
-    <div class="mb-6 p-4 bg-gray-50 rounded-lg shadow flex flex-wrap gap-6 justify-between items-center">
-      <div><strong>Total Marks Scored:</strong> <span class="text-green-700 font-bold">{{ summary.total_marks }}</span> / <span class="text-gray-700">{{ summary.total_possible_marks }}</span></div>
-      <div><strong>Correct:</strong> <span class="text-green-700 font-bold">{{ summary.correct }}</span></div>
-      <div><strong>Wrong:</strong> <span class="text-red-700 font-bold">{{ summary.wrong }}</span></div>
-      <div><strong>Not Attempted:</strong> <span class="text-yellow-700 font-bold">{{ summary.not_attempted }}</span></div>
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Page Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Exam Review</h1>
+        <p class="text-xl text-gray-600">{{ exam.name }} - {{ exam.question_paper.qPaperTitle }}</p>
     </div>
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200 bg-white rounded-lg shadow">
-        <thead class="bg-blue-100">
-          <tr>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">#</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Question</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Your Answer</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Correct Answer</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Status</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-          {% for item in review_data %}
-          <tr class="hover:bg-blue-50">
-            <td class="px-4 py-2">{{ forloop.counter }}</td>
-            <td class="px-4 py-2">{{ item.question }}</td>
-            <td class="px-4 py-2">{{ item.student_answer }}</td>
-            <td class="px-4 py-2">{{ item.correct_answer }}</td>
-            <td class="px-4 py-2">
-              {% if item.student_answer == "" %}
-                <span class="font-bold text-yellow-600">Not Attempted</span>
-              {% elif item.is_correct %}
-                <span class="font-bold text-green-600">Correct</span>
-              {% else %}
-                <span class="font-bold text-red-600">Wrong</span>
-              {% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    <div class="text-center mt-6">
-      <a href="{% url 'view_exams_student' %}" class="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold shadow hover:bg-blue-700 transition">Back to Exams</a>
-    </div>
-  </div>
+
+    {% if review_data %}
+        <!-- Summary Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="bi bi-check-circle text-2xl text-green-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Correct</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ summary.correct }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                        <i class="bi bi-x-circle text-2xl text-red-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Wrong</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ summary.wrong }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <i class="bi bi-dash-circle text-2xl text-yellow-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Not Attempted</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ summary.not_attempted }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="bi bi-trophy text-2xl text-blue-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Score</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ summary.total_marks }}/{{ summary.total_possible_marks }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions Review -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-900">Question Review</h2>
+            </div>
+            
+            <div class="divide-y divide-gray-200">
+                {% for item in review_data %}
+                    <div class="p-6">
+                        <div class="flex items-start space-x-4">
+                            <!-- Question Number -->
+                            <div class="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                                <span class="text-sm font-medium text-gray-700">{{ forloop.counter }}</span>
+                            </div>
+                            
+                            <!-- Question Content -->
+                            <div class="flex-1">
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">{{ item.question }}</h3>
+                                
+                                <!-- Options -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                                    <div class="flex items-center p-3 rounded-lg border {% if item.correct_answer == 'A' %}bg-green-50 border-green-200{% elif item.student_answer == 'A' and not item.is_correct %}bg-red-50 border-red-200{% else %}bg-gray-50 border-gray-200{% endif %}">
+                                        <span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-3 text-sm font-medium">A</span>
+                                        <span class="text-gray-700">{{ item.optionA }}</span>
+                                        {% if item.correct_answer == 'A' %}
+                                            <i class="bi bi-check-circle-fill text-green-600 ml-auto"></i>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="flex items-center p-3 rounded-lg border {% if item.correct_answer == 'B' %}bg-green-50 border-green-200{% elif item.student_answer == 'B' and not item.is_correct %}bg-red-50 border-red-200{% else %}bg-gray-50 border-gray-200{% endif %}">
+                                        <span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-3 text-sm font-medium">B</span>
+                                        <span class="text-gray-700">{{ item.optionB }}</span>
+                                        {% if item.correct_answer == 'B' %}
+                                            <i class="bi bi-check-circle-fill text-green-600 ml-auto"></i>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="flex items-center p-3 rounded-lg border {% if item.correct_answer == 'C' %}bg-green-50 border-green-200{% elif item.student_answer == 'C' and not item.is_correct %}bg-red-50 border-red-200{% else %}bg-gray-50 border-gray-200{% endif %}">
+                                        <span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-3 text-sm font-medium">C</span>
+                                        <span class="text-gray-700">{{ item.optionC }}</span>
+                                        {% if item.correct_answer == 'C' %}
+                                            <i class="bi bi-check-circle-fill text-green-600 ml-auto"></i>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="flex items-center p-3 rounded-lg border {% if item.correct_answer == 'D' %}bg-green-50 border-green-200{% elif item.student_answer == 'D' and not item.is_correct %}bg-red-50 border-red-200{% else %}bg-gray-50 border-gray-200{% endif %}">
+                                        <span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-3 text-sm font-medium">D</span>
+                                        <span class="text-gray-700">{{ item.optionD }}</span>
+                                        {% if item.correct_answer == 'D' %}
+                                            <i class="bi bi-check-circle-fill text-green-600 ml-auto"></i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Answer Summary -->
+                                <div class="flex items-center space-x-4 text-sm">
+                                    <div class="flex items-center">
+                                        <span class="font-medium text-gray-700">Your Answer:</span>
+                                        <span class="ml-2 px-2 py-1 rounded {% if item.is_correct %}bg-green-100 text-green-800{% elif item.student_answer %}bg-red-100 text-red-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                            {% if item.student_answer %}{{ item.student_answer }}{% else %}Not Attempted{% endif %}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <span class="font-medium text-gray-700">Correct Answer:</span>
+                                        <span class="ml-2 px-2 py-1 rounded bg-green-100 text-green-800">{{ item.correct_answer }}</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        {% if item.is_correct %}
+                                            <i class="bi bi-check-circle-fill text-green-600 mr-1"></i>
+                                            <span class="text-green-600 font-medium">Correct</span>
+                                        {% elif item.student_answer %}
+                                            <i class="bi bi-x-circle-fill text-red-600 mr-1"></i>
+                                            <span class="text-red-600 font-medium">Incorrect</span>
+                                        {% else %}
+                                            <i class="bi bi-dash-circle text-gray-400 mr-1"></i>
+                                            <span class="text-gray-500 font-medium">Not Attempted</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-8 flex justify-center space-x-4">
+            <a href="{% url 'student-previous' %}" 
+               class="inline-flex items-center px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors">
+                <i class="bi bi-arrow-left mr-2"></i>
+                Back to Previous Exams
+            </a>
+            
+            <a href="{% url 'view_exam_attempts' exam.id %}" 
+               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="bi bi-list-ul mr-2"></i>
+                View All Attempts
+            </a>
+        </div>
+
+    {% else %}
+        <!-- No Data State -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-12 text-center">
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="bi bi-exclamation-triangle text-4xl text-gray-400"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">No Review Data Available</h2>
+            <p class="text-gray-600 mb-6">No answers were found for this exam attempt.</p>
+            <a href="{% url 'student-previous' %}" 
+               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="bi bi-arrow-left mr-2"></i>
+                Back to Previous Exams
+            </a>
+        </div>
+    {% endif %}
 </div>
 {% endblock %} 
