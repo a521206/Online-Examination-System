@@ -2,33 +2,48 @@
 {% load get_item %}
 
 {% block body %}
-<div class="container mt-5">
-    <h2>Upload Question Bank (Excel)</h2>
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">Upload Question Bank (Excel)</h2>
+        
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-800 border border-red-200{% elif message.tags == 'success' %}bg-green-100 text-green-800 border border-green-200{% else %}bg-blue-100 text-blue-800 border border-blue-200{% endif %}">
+                    {{ message }}
+                </div>
         {% endfor %}
     {% endif %}
+        
     {% if preview_data %}
         <form method="post">
             {% csrf_token %}
             <input type="hidden" name="file_b64" value="{{ file_b64 }}">
-            <div class="table-responsive">
-                <table class="table table-bordered table-sm">
-                    <thead>
+                
+                <!-- Responsive Table Container -->
+                <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
                         <tr>
-                            <th>Select</th>
-                            <th>Row</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Select
+                                </th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Row
+                                </th>
                             {% for col in columns %}
-                                <th>{{ col }}</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-0">
+                                        {{ col }}
+                                    </th>
                             {% endfor %}
-                            <th>Error</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Error
+                                </th>
                         </tr>
                     </thead>
-                    <tbody>
+                        <tbody class="bg-white divide-y divide-gray-200">
                         {% for row in preview_data %}
                             {% with row_idx=forloop.counter0 %}
-                            <tr>
+                                <tr class="hover:bg-gray-50">
                                 {% with has_error=False row_error_msg="" %}
                                     {% for error in error_rows %}
                                         {% if error.row == row_idx|add:2 %}
@@ -37,11 +52,13 @@
                                             {% endwith %}
                                         {% endif %}
                                     {% endfor %}
-                                    <td>
-                                        <input type="checkbox" name="selected_rows" value="{{ row_idx }}" {% if has_error %}disabled{% else %}checked{% endif %}>
+                                        <td class="px-3 py-2 whitespace-nowrap">
+                                            <input type="checkbox" name="selected_rows" value="{{ row_idx }}" 
+                                                   {% if has_error %}disabled{% else %}checked{% endif %}
+                                                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                                     </td>
                                 {% endwith %}
-                                <td>{{ row_idx|add:2 }}</td>
+                                    <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900">{{ row_idx|add:2 }}</td>
                                 {% for col in columns %}
                                     {% with cell_error=False %}
                                         {% for error in error_rows %}
@@ -49,13 +66,15 @@
                                                 {% with cell_error=True %}{% endwith %}
                                             {% endif %}
                                         {% endfor %}
-                                        <td {% if cell_error %}style="background:#ffcccc; color:#a94442; font-weight:bold;"{% endif %}>{{ row|get_item:col }}</td>
+                                            <td class="px-3 py-2 text-sm {% if cell_error %}bg-red-50 text-red-800 font-medium{% else %}text-gray-900{% endif %} max-w-xs truncate" title="{{ row|get_item:col }}">
+                                                {{ row|get_item:col }}
+                                            </td>
                                     {% endwith %}
                                 {% endfor %}
-                                <td>
+                                    <td class="px-3 py-2 text-sm text-red-600">
                                     {% for error in error_rows %}
                                         {% if error.row == row_idx|add:2 %}
-                                            <span style="color:#a94442; font-weight:bold;">Missing/invalid: {{ error.columns|join:", " }}</span>
+                                                <span class="font-medium">Missing/invalid: {{ error.columns|join:", " }}</span>
                                         {% endif %}
                                     {% endfor %}
                                 </td>
@@ -65,24 +84,63 @@
                     </tbody>
                 </table>
             </div>
-            <button type="submit" class="btn btn-primary mt-2">Upload Selected</button>
-            <a href="{% url 'faculty-addquestions' %}" class="btn btn-secondary mt-2">Back to Manual Add</a>
+                
+                <div class="mt-6 flex space-x-4">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="bi bi-upload mr-2"></i>
+                        Upload Selected
+                    </button>
+                    <a href="{% url 'faculty-addquestions' %}" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors">
+                        <i class="bi bi-arrow-left mr-2"></i>
+                        Back to Manual Add
+                    </a>
+                </div>
         </form>
-        <div class="alert alert-danger mt-3">Rows and columns highlighted in red have missing or invalid data. Only valid, selected rows will be uploaded.</div>
-    {% else %}
-        <form method="post" enctype="multipart/form-data" class="mb-3">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="excel_file">Select Excel file (.xlsx or .csv):</label>
-                <input type="file" name="excel_file" id="excel_file" class="form-control" accept=".xlsx,.csv" required>
+            
+            <div class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div class="flex items-center">
+                    <i class="bi bi-exclamation-triangle text-red-600 mr-2"></i>
+                    <span class="text-red-800 font-medium">Rows and columns highlighted in red have missing or invalid data. Only valid, selected rows will be uploaded.</span>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary mt-2">Upload</button>
-            <a href="{% url 'faculty-addquestions' %}" class="btn btn-secondary mt-2">Back to Manual Add</a>
+            
+        {% else %}
+            <form method="post" enctype="multipart/form-data" class="mb-6">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="excel_file" class="block text-sm font-medium text-gray-700 mb-2">Select Excel file (.xlsx or .csv):</label>
+                    <input type="file" name="excel_file" id="excel_file" 
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                           accept=".xlsx,.csv" required>
+                </div>
+                <div class="flex space-x-4">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="bi bi-upload mr-2"></i>
+                        Upload
+                    </button>
+                    <a href="{% url 'faculty-addquestions' %}" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors">
+                        <i class="bi bi-arrow-left mr-2"></i>
+                        Back to Manual Add
+                    </a>
+                </div>
         </form>
-        <div class="alert alert-info mt-3">
-            <strong>Excel Template:</strong> The file must have columns: <code>question</code>, <code>optionA</code>, <code>optionB</code>, <code>optionC</code>, <code>optionD</code>, <code>answer</code>, <code>max_marks</code>.
+            
+            <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div class="flex items-start">
+                    <i class="bi bi-info-circle text-blue-600 mr-2 mt-0.5"></i>
+                    <div>
+                        <h4 class="text-sm font-semibold text-blue-900 mb-2">Excel Template Requirements:</h4>
+                        <p class="text-sm text-blue-800 mb-2">
+                            <strong>Required columns:</strong> <code class="bg-blue-100 px-1 rounded">question</code>, <code class="bg-blue-100 px-1 rounded">optionA</code>, <code class="bg-blue-100 px-1 rounded">optionB</code>, <code class="bg-blue-100 px-1 rounded">optionC</code>, <code class="bg-blue-100 px-1 rounded">optionD</code>, <code class="bg-blue-100 px-1 rounded">answer</code>, <code class="bg-blue-100 px-1 rounded">max_marks</code>
+                        </p>
+                        <p class="text-sm text-blue-800">
+                            <strong>Optional column:</strong> <code class="bg-blue-100 px-1 rounded">solution</code> for detailed explanations
+                        </p>
+                    </div>
+                </div>
         </div>
     {% endif %}
+    </div>
 </div>
 {% endblock %}
 

@@ -4,6 +4,24 @@
 
 {% block head %}
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Optimized MathJax Configuration for Questions and Options -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 {% endblock %}
 
 {% block body %}
@@ -50,16 +68,18 @@
       <input type="hidden" name="page" value="{{ page_number }}">
       <div class="grid grid-cols-1 gap-6">
         {% for ques in question_list %}
-        <div class="border border-gray-200 rounded-lg p-5 bg-white transition-all duration-300 hover:shadow-lg">
+        <div class="border border-gray-200 rounded-lg p-5 bg-white transition-all duration-300 hover:shadow-lg question-visible" data-question="{{ ques.qno }}">
           <h2 class="text-xl font-semibold mb-3 text-gray-900 leading-relaxed">
-            <span class="text-blue-600 mr-2">{{ start_question_number|add:forloop.counter0 }}.</span> {{ ques.question }}
+            <span class="text-blue-600 mr-2">{{ start_question_number|add:forloop.counter0 }}.</span> 
+            <span class="tex2jax_process">{{ ques.question|safe }}</span>
           </h2>
           <div class="space-y-2 text-gray-700">
             {% for opt in "ABCD" %}
             <label class="block cursor-pointer">
-              <input class="form-check-input mr-2" type="radio" id="option{{ opt }}{{ forloop.parentloop.counter }}" name="{{ ques.question }}" value="{{ opt }}" {% if answers|get_item:ques.qno == opt %}checked{% endif %}>
+              <input class="hidden" type="radio" id="option{{ opt }}{{ forloop.parentloop.counter }}" name="{{ ques.question }}" value="{{ opt }}" {% if answers|get_item:ques.qno == opt %}checked{% endif %}>
               <span class="p-2 border border-gray-300 rounded-md hover:bg-blue-50 hover:border-blue-400 inline-block w-full">
-                <span class="font-medium">{{ opt }}:</span> {{ ques|get_item_option:opt }}
+                <span class="font-medium">{{ opt }}:</span> 
+                <span class="tex2jax_process">{{ ques|get_item_option:opt|safe }}</span>
               </span>
             </label>
             {% endfor %}
@@ -98,4 +118,40 @@
 
 <!-- Include Timer JavaScript -->
 <script src="{% static 'js/giveExam.js' %}"></script>
+
+<!-- Optimized MathJax Typeset for Questions and Options -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Defer MathJax processing to improve initial page load
+    setTimeout(() => {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        const mathElements = document.querySelectorAll('.tex2jax_process');
+        console.log('Found math elements:', mathElements.length);
+        if (mathElements.length > 0) {
+          MathJax.typesetPromise(mathElements).then(() => {
+            console.log('MathJax processing completed successfully');
+          }).catch((err) => {
+            console.warn('MathJax processing error:', err);
+          });
+        }
+      } else {
+        console.warn('MathJax not available');
+      }
+    }, 200); // Increased delay to ensure MathJax is fully loaded
+  });
+  
+  // Additional fallback for MathJax processing
+  window.addEventListener('load', function() {
+    setTimeout(() => {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        const mathElements = document.querySelectorAll('.tex2jax_process');
+        if (mathElements.length > 0) {
+          MathJax.typesetPromise(mathElements).catch((err) => {
+            console.warn('MathJax fallback processing error:', err);
+          });
+        }
+      }
+    }, 500);
+  });
+</script>
 {% endblock %}

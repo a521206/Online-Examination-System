@@ -1,13 +1,31 @@
-// JavaScript moved from giveExam.html
+// Optimized JavaScript for giveExam.html
 
 var count = 0;
+var timerInterval = null;
+var dsecElement = null;
+var dminElement = null;
+var minLabelElement = null;
+var secLabelElement = null;
+
 document.addEventListener('DOMContentLoaded', function() {
-    var hidden, visibilityState, visibilityChange;
+    // Cache DOM elements for better performance
+    dsecElement = document.getElementById("dsec");
+    dminElement = document.getElementById("dmin");
+    minLabelElement = document.getElementById("min-label");
+    secLabelElement = document.getElementById("sec-label");
+    
+    // Optimized visibility change detection
+    var hidden, visibilityChange, visibilityState;
     if (typeof document.hidden !== "undefined") {
-        hidden = "hidden", visibilityChange = "visibilitychange", visibilityState = "visibilityState";
+        hidden = "hidden";
+        visibilityChange = "visibilitychange";
+        visibilityState = "visibilityState";
     } else if (typeof document.msHidden !== "undefined") {
-        hidden = "msHidden", visibilityChange = "msvisibilitychange", visibilityState = "msVisibilityState";
+        hidden = "msHidden";
+        visibilityChange = "msvisibilitychange";
+        visibilityState = "msVisibilityState";
     }
+    
     var document_hidden = document[hidden];
     document.addEventListener(visibilityChange, function() {
         if(document_hidden != document[hidden]) {
@@ -21,6 +39,9 @@ document.addEventListener('DOMContentLoaded', function() {
             document_hidden = document[hidden];
         }
     });
+    
+    // Start timer
+    startTimer();
 });
 
 function mail(){
@@ -37,12 +58,23 @@ function mail(){
 }
 
 var milisec = 0;
-var seconds = parseInt(document.getElementById("secs").value) || 0;
-var minutes = parseInt(document.getElementById("mins").value) || 0;
+var seconds = parseInt(document.getElementById("secs")?.value) || 0;
+var minutes = parseInt(document.getElementById("mins")?.value) || 0;
+
+function startTimer() {
+    // Clear any existing timer
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
+    
+    // Start the countdown
+    timerInterval = setInterval(display, 1000);
+}
 
 function display() {
     // Check if time is up
     if (minutes <= 0 && seconds <= 0) {
+        clearInterval(timerInterval);
         // Show warning and auto-submit
         if (confirm("Time's up! Your exam will be submitted automatically.")) {
             document.getElementById("examform").submit();
@@ -62,7 +94,7 @@ function display() {
         alert("Warning: Only 1 minute remaining!");
     }
     
-    // Update display
+    // Update time
     if (seconds <= 0) {
         minutes = minutes - 1;
         seconds = 59;
@@ -70,12 +102,7 @@ function display() {
         seconds = seconds - 1;
     }
     
-    // Update DOM elements
-    var dsecElement = document.getElementById("dsec");
-    var dminElement = document.getElementById("dmin");
-    var minLabelElement = document.getElementById("min-label");
-    var secLabelElement = document.getElementById("sec-label");
-    
+    // Update DOM elements efficiently
     if (dsecElement) dsecElement.innerHTML = seconds.toString().padStart(2, '0');
     if (dminElement) dminElement.innerHTML = minutes;
     if (minLabelElement) minLabelElement.innerHTML = (minutes == 1) ? "min" : "mins";
@@ -86,16 +113,6 @@ function display() {
         if (dminElement) dminElement.style.color = "#dc2626"; // red-600
         if (dsecElement) dsecElement.style.color = "#dc2626"; // red-600
     }
-    
-    // Continue countdown
-    setTimeout(display, 1000);
-}
-
-// Start the timer when page loads
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', display);
-} else {
-    display();
 }
 
 function getCookie(name) {

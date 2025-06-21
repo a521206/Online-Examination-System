@@ -8,6 +8,21 @@ from django.urls import reverse
 
 class QuestionDBAdmin(admin.ModelAdmin):
     change_list_template = "admin/questions/question_db_changelist.html"
+    list_display = ['qno', 'question', 'answer', 'max_marks', 'professor']
+    list_filter = ['professor', 'max_marks']
+    search_fields = ['question', 'answer']
+    fieldsets = (
+        ('Question Details', {
+            'fields': ('professor', 'question', 'max_marks')
+        }),
+        ('Options', {
+            'fields': ('optionA', 'optionB', 'optionC', 'optionD')
+        }),
+        ('Answer & Solution', {
+            'fields': ('answer', 'solution'),
+            'description': 'Provide the correct answer and detailed explanation'
+        }),
+    )
 
     def get_urls(self):
         urls = super().get_urls()

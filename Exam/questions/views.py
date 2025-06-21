@@ -18,6 +18,8 @@ import io
 import base64
 from django.core.paginator import Paginator
 import random
+from utils.performance_monitor import monitor_performance
+import time
 
 def has_group(user, group_name):
     group = Group.objects.get(name=group_name)
@@ -244,18 +246,26 @@ def convert(seconds):
     min += hour*60
     return "%02d:%02d" % (min, sec) 
 
+@monitor_performance("appear_exam")
 @login_required(login_url='login')
 def appear_exam(request, id):
+    start_time = time.time()
+    
     student = request.user
     from .question_models import Question_DB
     QUESTIONS_PER_PAGE = 5
+    
     if request.method == 'GET':
-        exam = Exam_Model.objects.get(pk=id)
+        # Optimize database queries with select_related and prefetch_related
+        exam = Exam_Model.objects.select_related('question_paper', 'professor').get(pk=id)
+        
         # Create a new attempt for each exam start
         attempt_id = request.session.get(f'exam_{exam.id}_attempt_id')
         if attempt_id:
             try:
-                attempt = StuExamAttempt.objects.get(id=attempt_id, student=student, exam=exam)
+                attempt = StuExamAttempt.objects.select_related('exam', 'qpaper').prefetch_related('selected_questions').get(
+                    id=attempt_id, student=student, exam=exam
+                )
             except StuExamAttempt.DoesNotExist:
                 attempt = None
         else:
@@ -271,11 +281,23 @@ def appear_exam(request, id):
             )
             request.session[f'exam_{exam.id}_attempt_id'] = attempt.id
             
-            # Select and store random questions for this attempt
-            all_questions = list(exam.question_paper.questions.all())
-            if len(all_questions) > 10:
-                # Randomly select 10 questions
-                random_qs = random.sample(all_questions, 10)
+            # Optimize question selection - use database-level random selection
+            all_questions = exam.question_paper.questions.all()
+            question_count = all_questions.count()
+            
+            if question_count > 10:
+                # Use database-level random selection for better performance
+                from django.db.models import Q
+                import random
+                
+                # Get random question IDs efficiently
+                all_qids = list(all_questions.values_list('qno', flat=True))
+                if len(all_qids) > 10:
+                    random_qids = random.sample(all_qids, 10)
+                    random_qs = Question_DB.objects.filter(qno__in=random_qids)
+                else:
+                    random_qs = all_questions
+                
                 # Store the selected questions directly in the attempt
                 attempt.selected_questions.set(random_qs)
                 # Also store IDs for backward compatibility
@@ -286,8 +308,8 @@ def appear_exam(request, id):
                 attempt.random_qids = ','.join(str(q.qno) for q in all_questions)
             attempt.save()
         
-        # Get the questions selected for this attempt
-        selected_questions = attempt.get_selected_questions()
+        # Get the questions selected for this attempt - optimize with prefetch
+        selected_questions = list(attempt.selected_questions.all().order_by('qno'))
         
         paginator = Paginator(selected_questions, QUESTIONS_PER_PAGE)
         page_number = request.GET.get('page', 1)
@@ -330,16 +352,25 @@ def appear_exam(request, id):
             "student_end_time": attempt.end_time,
             "answers": answers,
         }
+        
+        # Simple page load timing
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print(f"[PAGE LOAD] /exams/student/appear/{id}/ - {execution_time:.3f}s")
+        print(f"[PAGE LOAD] Questions: {len(selected_questions)}, Page: {page_number}/{paginator.num_pages}")
+        
         return render(request, 'exam/giveExam.html', context)
     
     if request.method == 'POST':
         paper = request.POST['paper']
-        examMain = Exam_Model.objects.get(name=paper)
+        examMain = Exam_Model.objects.select_related('question_paper').get(name=paper)
         attempt_id = request.session.get(f'exam_{examMain.id}_attempt_id')
-        attempt = StuExamAttempt.objects.get(id=attempt_id, student=student, exam=examMain)
+        attempt = StuExamAttempt.objects.select_related('exam', 'qpaper').prefetch_related('selected_questions').get(
+            id=attempt_id, student=student, exam=examMain
+        )
         
         # Get the questions selected for this attempt
-        selected_questions = list(attempt.get_selected_questions())
+        selected_questions = list(attempt.selected_questions.all().order_by('qno'))
         
         paginator = Paginator(selected_questions, 5)
         page_number = int(request.POST.get('page', 1))
@@ -359,8 +390,11 @@ def appear_exam(request, id):
         
         # Final submission - save all answers and calculate score
         attempt.questions.clear()
+        
+        # Optimize bulk creation of student questions
+        student_questions = []
         for ques in selected_questions:
-            student_question = Stu_Question.objects.create(
+            student_question = Stu_Question(
                 student=student,
                 question=ques.question,
                 optionA=ques.optionA,
@@ -370,7 +404,11 @@ def appear_exam(request, id):
                 answer=ques.answer,
                 choice=answers.get(str(ques.qno), "")
             )
-            attempt.questions.add(student_question)
+            student_questions.append(student_question)
+        
+        # Bulk create all student questions at once
+        created_questions = Stu_Question.objects.bulk_create(student_questions)
+        attempt.questions.add(*created_questions)
         
         attempt.completed_at = timezone.now()
         
@@ -449,7 +487,8 @@ def review_answers(request, exam_id):
             'optionD': ques.optionD,
             'correct_answer': ques.answer,
             'student_answer': student_ans,
-            'is_correct': is_correct
+            'is_correct': is_correct,
+            'solution': ques.solution
         })
         total_possible_marks += ques.max_marks
         if student_ans == "" or student_ans is None:
@@ -485,6 +524,7 @@ def upload_questions_excel(request):
             try:
                 df = pd.read_excel(excel_file)
                 required_columns = ['question', 'optionA', 'optionB', 'optionC', 'optionD', 'answer', 'max_marks']
+                optional_columns = ['solution']
                 missing_cols = [col for col in required_columns if col not in df.columns]
                 if missing_cols:
                     messages.error(request, f'Excel file is missing required columns: {", ".join(missing_cols)}.')
@@ -554,6 +594,7 @@ def upload_questions_excel(request):
                             optionD=row['optionD'],
                             answer=row['answer'],
                             max_marks=int(row['max_marks']),
+                            solution=row.get('solution', ''),  # Optional field
                             professor=request.user
                         )
                         count += 1

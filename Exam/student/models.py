@@ -38,6 +38,15 @@ class StuExamAttempt(models.Model):
     score = models.IntegerField(default=0)
     random_qids = models.CharField(max_length=500, blank=True, null=True)  # Keep for backward compatibility
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['student', 'exam']),
+            models.Index(fields=['started_at']),
+            models.Index(fields=['completed_at']),
+            models.Index(fields=['student', 'exam', 'started_at']),
+        ]
+        ordering = ['-started_at']
+
     def __str__(self):
         return f"{self.student.username} - {self.exam.name} - {self.started_at}"
     
@@ -55,8 +64,9 @@ class StuExamAttempt(models.Model):
         super().save(*args, **kwargs)
     
     def get_selected_questions(self):
-        """Get the questions selected for this attempt"""
+        """Get the questions selected for this attempt - optimized version"""
         if self.selected_questions.exists():
+            # Use prefetch_related if not already done
             return self.selected_questions.all().order_by('qno')
         elif self.random_qids:
             # Fallback to old method for backward compatibility

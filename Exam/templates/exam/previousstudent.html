@@ -9,15 +9,15 @@
         <p class="text-xl text-gray-600 max-w-3xl mx-auto">
             View your completed exams and results below.
         </p>
-    </div>
+</div>
 
     <!-- Results Table -->
-    {% if completed %}
+  {% if completed %}
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-blue-600">
-                        <tr>
+          <tr>
                             <th class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
                                 Exam Name
                             </th>
@@ -36,11 +36,11 @@
                             <th class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
                                 Actions
                             </th>
-                        </tr>
-                    </thead>
+          </tr>
+        </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        {% for exam in completed %}
-                            {% for attempt in exam.attempts %}
+          {% for exam in completed %}
+            {% for attempt in exam.attempts %}
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-medium text-gray-900">{{ exam.name }}</div>
@@ -70,20 +70,20 @@
                                                class="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
                                                 <i class="bi bi-bar-chart mr-1"></i>
                                                 Review
-                                            </a>
+                </a>
                                             <a href="{% url 'view_exam_attempts' exam.id %}" 
                                                class="inline-flex items-center px-3 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors">
                                                 <i class="bi bi-list-ul mr-1"></i>
                                                 All Attempts
                                             </a>
                                         </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+              </td>
+            </tr>
+            {% endfor %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
         </div>
 
         <!-- Summary Statistics -->
@@ -143,7 +143,7 @@
             </div>
         </div>
 
-    {% else %}
+  {% else %}
         <!-- Empty State -->
         <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-12 text-center">
             <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -156,7 +156,7 @@
                 <i class="bi bi-play-circle mr-2"></i>
                 Take Your First Exam
             </a>
-        </div>
-    {% endif %}
+    </div>
+  {% endif %}
 </div>
 {% endblock %}

@@ -1,6 +1,27 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block head %}
+  <!-- Optimized MathJax Configuration for Questions, Options, and Solutions -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+{% endblock %}
+
 {% block body %}
 <div class="max-w-7xl mx-auto px-4 py-8">
     <!-- Page Header -->
@@ -78,13 +99,13 @@
                             
                             <!-- Question Content -->
                             <div class="flex-1">
-                                <h3 class="text-lg font-medium text-gray-900 mb-4">{{ item.question }}</h3>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4 tex2jax_process">{{ item.question|safe }}</h3>
                                 
                                 <!-- Options -->
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                                     <div class="flex items-center p-3 rounded-lg border {% if item.correct_answer == 'A' %}bg-green-50 border-green-200{% elif item.student_answer == 'A' and not item.is_correct %}bg-red-50 border-red-200{% else %}bg-gray-50 border-gray-200{% endif %}">
                                         <span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-3 text-sm font-medium">A</span>
-                                        <span class="text-gray-700">{{ item.optionA }}</span>
+                                        <span class="text-gray-700 tex2jax_process">{{ item.optionA|safe }}</span>
                                         {% if item.correct_answer == 'A' %}
                                             <i class="bi bi-check-circle-fill text-green-600 ml-auto"></i>
                                         {% endif %}
@@ -92,7 +113,7 @@
                                     
                                     <div class="flex items-center p-3 rounded-lg border {% if item.correct_answer == 'B' %}bg-green-50 border-green-200{% elif item.student_answer == 'B' and not item.is_correct %}bg-red-50 border-red-200{% else %}bg-gray-50 border-gray-200{% endif %}">
                                         <span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-3 text-sm font-medium">B</span>
-                                        <span class="text-gray-700">{{ item.optionB }}</span>
+                                        <span class="text-gray-700 tex2jax_process">{{ item.optionB|safe }}</span>
                                         {% if item.correct_answer == 'B' %}
                                             <i class="bi bi-check-circle-fill text-green-600 ml-auto"></i>
                                         {% endif %}
@@ -100,7 +121,7 @@
                                     
                                     <div class="flex items-center p-3 rounded-lg border {% if item.correct_answer == 'C' %}bg-green-50 border-green-200{% elif item.student_answer == 'C' and not item.is_correct %}bg-red-50 border-red-200{% else %}bg-gray-50 border-gray-200{% endif %}">
                                         <span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-3 text-sm font-medium">C</span>
-                                        <span class="text-gray-700">{{ item.optionC }}</span>
+                                        <span class="text-gray-700 tex2jax_process">{{ item.optionC|safe }}</span>
                                         {% if item.correct_answer == 'C' %}
                                             <i class="bi bi-check-circle-fill text-green-600 ml-auto"></i>
                                         {% endif %}
@@ -108,7 +129,7 @@
                                     
                                     <div class="flex items-center p-3 rounded-lg border {% if item.correct_answer == 'D' %}bg-green-50 border-green-200{% elif item.student_answer == 'D' and not item.is_correct %}bg-red-50 border-red-200{% else %}bg-gray-50 border-gray-200{% endif %}">
                                         <span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-3 text-sm font-medium">D</span>
-                                        <span class="text-gray-700">{{ item.optionD }}</span>
+                                        <span class="text-gray-700 tex2jax_process">{{ item.optionD|safe }}</span>
                                         {% if item.correct_answer == 'D' %}
                                             <i class="bi bi-check-circle-fill text-green-600 ml-auto"></i>
                                         {% endif %}
@@ -142,6 +163,21 @@
                                         {% endif %}
                                     </div>
                                 </div>
+                                
+                                <!-- Solution -->
+                                {% if item.solution %}
+                                    <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                                <i class="bi bi-lightbulb text-blue-600 text-sm"></i>
+                                            </div>
+                                            <div class="flex-1">
+                                                <h4 class="text-sm font-semibold text-blue-900 mb-2">Solution & Explanation</h4>
+                                                <p class="text-sm text-blue-800 leading-relaxed tex2jax_process">{{ item.solution|safe }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -180,4 +216,40 @@
         </div>
     {% endif %}
 </div>
+
+<!-- Optimized MathJax Typeset for Questions, Options, and Solutions -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Defer MathJax processing to improve initial page load
+    setTimeout(() => {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        const mathElements = document.querySelectorAll('.tex2jax_process');
+        console.log('Found math elements:', mathElements.length);
+        if (mathElements.length > 0) {
+          MathJax.typesetPromise(mathElements).then(() => {
+            console.log('MathJax processing completed successfully');
+          }).catch((err) => {
+            console.warn('MathJax processing error:', err);
+          });
+        }
+      } else {
+        console.warn('MathJax not available');
+      }
+    }, 200); // Increased delay to ensure MathJax is fully loaded
+  });
+  
+  // Additional fallback for MathJax processing
+  window.addEventListener('load', function() {
+    setTimeout(() => {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        const mathElements = document.querySelectorAll('.tex2jax_process');
+        if (mathElements.length > 0) {
+          MathJax.typesetPromise(mathElements).catch((err) => {
+            console.warn('MathJax fallback processing error:', err);
+          });
+        }
+      }
+    }, 500);
+  });
+</script>
 {% endblock %} 
