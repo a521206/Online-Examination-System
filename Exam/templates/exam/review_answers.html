@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load get_item %}
 
 {% block head %}
   <!-- Optimized MathJax Configuration for Questions, Options, and Solutions -->
@@ -104,7 +105,7 @@
                                     {% for opt in "ABCD" %}
                                     <div class="flex items-center p-3 rounded-lg border {% if item.mcq_answer == opt %}bg-green-50 border-green-200{% elif item.student_answer == opt and not item.is_correct %}bg-red-50 border-red-200{% else %}bg-gray-50 border-gray-200{% endif %}">
                                         <span class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center mr-3 text-sm font-medium">{{ opt }}</span>
-                                        <span class="text-gray-700 tex2jax_process">{{ item["option"|add:opt]|safe }}</span>
+                                        <span class="text-gray-700 tex2jax_process">{{ item|get_option:opt|safe }}</span>
                                         {% if item.mcq_answer == opt %}
                                             <i class="bi bi-check-circle-fill text-green-600 ml-auto"></i>
                                         {% endif %}

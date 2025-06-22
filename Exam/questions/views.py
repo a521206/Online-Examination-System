@@ -399,16 +399,28 @@ def appear_exam(request, id):
             attempt.questions.clear()
             student_questions = []
             for ques in selected_questions:
-                student_question = Stu_Question(
-                    student=student,
-                    question=ques.question,
-                    optionA=ques.optionA,
-                    optionB=ques.optionB,
-                    optionC=ques.optionC,
-                    optionD=ques.optionD,
-                    answer=ques.mcq_answer if ques.question_type == 'MCQ' else ques.short_answer,
-                    choice=answers.get(str(ques.qno), "")
-                )
+                if ques.question_type == 'MCQ':
+                    student_question = Stu_Question(
+                        student=student,
+                        question=ques.question,
+                        optionA=ques.optionA or '',
+                        optionB=ques.optionB or '',
+                        optionC=ques.optionC or '',
+                        optionD=ques.optionD or '',
+                        answer=ques.mcq_answer or '',
+                        choice=answers.get(str(ques.qno), "")
+                    )
+                elif ques.question_type == 'SHORT':
+                    student_question = Stu_Question(
+                        student=student,
+                        question=ques.question,
+                        optionA='',
+                        optionB='',
+                        optionC='',
+                        optionD='',
+                        answer=ques.short_answer or '',
+                        choice=answers.get(str(ques.qno), "")
+                    )
                 student_questions.append(student_question)
             created_questions = Stu_Question.objects.bulk_create(student_questions)
             attempt.questions.add(*created_questions)
