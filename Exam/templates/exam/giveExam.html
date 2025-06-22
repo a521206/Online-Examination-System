@@ -73,15 +73,19 @@
             <span class="tex2jax_process">{{ ques.question|safe }}</span>
           </h2>
           <div class="space-y-2 text-gray-700">
-            {% for opt in "ABCD" %}
-            <label class="block cursor-pointer">
-              <input class="hidden" type="radio" id="option{{ opt }}{{ forloop.parentloop.counter }}" name="{{ ques.question }}" value="{{ opt }}" {% if answers|get_item:ques.qno == opt %}checked{% endif %}>
-              <span class="p-2 border border-gray-300 rounded-md hover:bg-blue-50 hover:border-blue-400 inline-block w-full">
-                <span class="font-medium">{{ opt }}:</span> 
-                <span class="tex2jax_process">{{ ques|get_item_option:opt|safe }}</span>
-              </span>
-            </label>
-            {% endfor %}
+            {% if ques.question_type == 'MCQ' %}
+              {% for opt in "ABCD" %}
+              <label class="block cursor-pointer">
+                <input class="hidden" type="radio" id="option{{ opt }}{{ forloop.parentloop.counter }}" name="{{ ques.qno }}" value="{{ opt }}" {% if answers|get_item:ques.qno == opt %}checked{% endif %}>
+                <span class="p-2 border border-gray-300 rounded-md hover:bg-blue-50 hover:border-blue-400 inline-block w-full">
+                  <span class="font-medium">{{ opt }}:</span> 
+                  <span class="tex2jax_process">{{ ques|get_item_option:opt|safe }}</span>
+                </span>
+              </label>
+              {% endfor %}
+            {% elif ques.question_type == 'SHORT' %}
+              <textarea name="{{ ques.qno }}" rows="3" class="form-input mt-1 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Type your answer here...">{{ answers|get_item:ques.qno }}</textarea>
+            {% endif %}
           </div>
           <div class="mt-4 flex justify-between items-center text-sm text-gray-600">
             <span class="font-bold text-purple-700">Max Marks: {{ ques.max_marks }}</span>

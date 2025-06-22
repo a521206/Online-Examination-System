@@ -131,7 +131,13 @@
                     <div>
                         <h4 class="text-sm font-semibold text-blue-900 mb-2">Excel Template Requirements:</h4>
                         <p class="text-sm text-blue-800 mb-2">
-                            <strong>Required columns:</strong> <code class="bg-blue-100 px-1 rounded">question</code>, <code class="bg-blue-100 px-1 rounded">optionA</code>, <code class="bg-blue-100 px-1 rounded">optionB</code>, <code class="bg-blue-100 px-1 rounded">optionC</code>, <code class="bg-blue-100 px-1 rounded">optionD</code>, <code class="bg-blue-100 px-1 rounded">answer</code>, <code class="bg-blue-100 px-1 rounded">max_marks</code>
+                            <strong>Required columns:</strong> <code class="bg-blue-100 px-1 rounded">question_type</code> (<code>MCQ</code> or <code>SHORT</code>), <code class="bg-blue-100 px-1 rounded">question</code>, <code class="bg-blue-100 px-1 rounded">max_marks</code>
+                        </p>
+                        <p class="text-sm text-blue-800 mb-2">
+                            <strong>For MCQ:</strong> <code class="bg-blue-100 px-1 rounded">optionA</code>, <code class="bg-blue-100 px-1 rounded">optionB</code>, <code class="bg-blue-100 px-1 rounded">optionC</code>, <code class="bg-blue-100 px-1 rounded">optionD</code>, <code class="bg-blue-100 px-1 rounded">mcq_answer</code> (A/B/C/D)
+                        </p>
+                        <p class="text-sm text-blue-800 mb-2">
+                            <strong>For Short Answer:</strong> <code class="bg-blue-100 px-1 rounded">short_answer</code> (expected/model answer)
                         </p>
                         <p class="text-sm text-blue-800">
                             <strong>Optional column:</strong> <code class="bg-blue-100 px-1 rounded">solution</code> for detailed explanations

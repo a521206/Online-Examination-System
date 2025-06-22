@@ -33,16 +33,29 @@ class Command(BaseCommand):
                         
                         for q in questions:
                             # Create question object
-                            question = Question_DB.objects.create(
-                                question=q.get('question', ''),
-                                optionA=q.get('optionA', ''),
-                                optionB=q.get('optionB', ''),
-                                optionC=q.get('optionC', ''),
-                                optionD=q.get('optionD', ''),
-                                answer=q.get('answer', ''),
-                                solution=q.get('solution', ''),
-                                max_marks=q.get('max_marks', 1),
-                            )
+                            if q['question_type'].upper() == 'MCQ':
+                                question = Question_DB(
+                                    question_type='MCQ',
+                                    question=q['question'],
+                                    optionA=q.get('optionA', ''),
+                                    optionB=q.get('optionB', ''),
+                                    optionC=q.get('optionC', ''),
+                                    optionD=q.get('optionD', ''),
+                                    mcq_answer=q.get('mcq_answer', ''),
+                                    max_marks=q.get('max_marks', 1),
+                                    solution=q.get('solution', ''),
+                                    professor=q.get('professor', '')
+                                )
+                            elif q['question_type'].upper() == 'SHORT':
+                                question = Question_DB(
+                                    question_type='SHORT',
+                                    question=q['question'],
+                                    short_answer=q.get('short_answer', ''),
+                                    max_marks=q.get('max_marks', 1),
+                                    solution=q.get('solution', ''),
+                                    professor=q.get('professor', '')
+                                )
+                            question.save()
                             total_loaded += 1
                             
                     self.stdout.write(

@@ -380,7 +380,7 @@ def appear_exam(request, id):
         
         # Collect answers from the current page
         for ques in paginator.get_page(page_number).object_list:
-            ans = request.POST.get(ques.question, None)
+            ans = request.POST.get(str(ques.qno), None)
             if ans is not None:
                 answers[str(ques.qno)] = ans
         request.session[f'exam_{examMain.id}_answers'] = answers
@@ -406,7 +406,7 @@ def appear_exam(request, id):
                     optionB=ques.optionB,
                     optionC=ques.optionC,
                     optionD=ques.optionD,
-                    answer=ques.answer,
+                    answer=ques.mcq_answer if ques.question_type == 'MCQ' else ques.short_answer,
                     choice=answers.get(str(ques.qno), "")
                 )
                 student_questions.append(student_question)
@@ -416,8 +416,13 @@ def appear_exam(request, id):
             examScore = 0
             for ques in selected_questions:
                 student_ans = answers.get(str(ques.qno), "")
-                if student_ans.lower() == ques.answer.lower() or student_ans == ques.answer:
-                    examScore += ques.max_marks
+                if ques.question_type == 'MCQ':
+                    if student_ans.upper() == (ques.mcq_answer or '').upper():
+                        examScore += ques.max_marks
+                elif ques.question_type == 'SHORT':
+                    # For short answer, you may want to use a more sophisticated comparison
+                    if student_ans.strip().lower() == (ques.short_answer or '').strip().lower():
+                        examScore += ques.max_marks
             attempt.score = examScore
             attempt.save()
             if f'exam_{examMain.id}_answers' in request.session:
@@ -478,17 +483,25 @@ def review_answers(request, exam_id):
     total_possible_marks = 0
     for ques in questions:
         student_ans = answer_map.get(ques.question, "")
-        is_correct = (student_ans.lower() == ques.answer.lower() or student_ans == ques.answer)
+        is_correct = False
+        if ques.question_type == 'MCQ':
+            is_correct = (student_ans.upper() == (ques.mcq_answer or '').upper())
+            correct_answer = ques.mcq_answer
+        elif ques.question_type == 'SHORT':
+            is_correct = (student_ans.strip().lower() == (ques.short_answer or '').strip().lower())
+            correct_answer = None
         review_data.append({
+            'question_type': ques.question_type,
             'question': ques.question,
-            'optionA': ques.optionA,
-            'optionB': ques.optionB,
-            'optionC': ques.optionC,
-            'optionD': ques.optionD,
-            'correct_answer': ques.answer,
+            'optionA': getattr(ques, 'optionA', ''),
+            'optionB': getattr(ques, 'optionB', ''),
+            'optionC': getattr(ques, 'optionC', ''),
+            'optionD': getattr(ques, 'optionD', ''),
+            'mcq_answer': getattr(ques, 'mcq_answer', ''),
+            'short_answer': getattr(ques, 'short_answer', ''),
             'student_answer': student_ans,
             'is_correct': is_correct,
-            'solution': ques.solution
+            'solution': getattr(ques, 'solution', ''),
         })
         total_possible_marks += ques.max_marks
         if student_ans == "" or student_ans is None:
