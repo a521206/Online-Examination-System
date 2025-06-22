@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', function() {
     minLabelElement = document.getElementById("min-label");
     secLabelElement = document.getElementById("sec-label");
     
+    // Initialize radio button selection handling
+    initializeRadioButtons();
+    
     // Optimized visibility change detection
     var hidden, visibilityChange, visibilityState;
     if (typeof document.hidden !== "undefined") {
@@ -43,6 +46,52 @@ document.addEventListener('DOMContentLoaded', function() {
     // Start timer
     startTimer();
 });
+
+// Function to handle radio button selection and visual feedback
+function initializeRadioButtons() {
+    // Get all radio buttons
+    const radioButtons = document.querySelectorAll('input[type="radio"]');
+    
+    radioButtons.forEach(function(radio) {
+        // Add click event listener to the parent label
+        const label = radio.closest('label');
+        if (label) {
+            label.addEventListener('click', function(e) {
+                // Prevent default to avoid double-triggering
+                e.preventDefault();
+                
+                // Get the question name to find other options in the same question
+                const questionName = radio.name;
+                const questionContainer = radio.closest('.question-visible');
+                
+                // Remove selected state from all options in this question
+                const allOptionsInQuestion = questionContainer.querySelectorAll('label');
+                allOptionsInQuestion.forEach(function(optionLabel) {
+                    optionLabel.classList.remove('bg-blue-100', 'border-blue-500', 'ring-2', 'ring-blue-200');
+                    optionLabel.classList.add('border-gray-300');
+                });
+                
+                // Add selected state to clicked option
+                label.classList.remove('border-gray-300');
+                label.classList.add('bg-blue-100', 'border-blue-500', 'ring-2', 'ring-blue-200');
+                
+                // Check the radio button
+                radio.checked = true;
+            });
+        }
+    });
+    
+    // Initialize already selected options (for when page loads with saved answers)
+    radioButtons.forEach(function(radio) {
+        if (radio.checked) {
+            const label = radio.closest('label');
+            if (label) {
+                label.classList.remove('border-gray-300');
+                label.classList.add('bg-blue-100', 'border-blue-500', 'ring-2', 'ring-blue-200');
+            }
+        }
+    });
+}
 
 function mail(){
     var professorname = document.getElementById("professorname").value;

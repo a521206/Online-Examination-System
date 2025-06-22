@@ -261,15 +261,19 @@ def appear_exam(request, id):
         
         # Create a new attempt for each exam start
         attempt_id = request.session.get(f'exam_{exam.id}_attempt_id')
+        attempt = None
+        now = timezone.now()
         if attempt_id:
             try:
                 attempt = StuExamAttempt.objects.select_related('exam', 'qpaper').prefetch_related('selected_questions').get(
                     id=attempt_id, student=student, exam=exam
                 )
+                # If the attempt is completed or expired, ignore it and create a new one
+                if attempt.completed_at or (attempt.end_time and now >= attempt.end_time):
+                    attempt = None
+                    del request.session[f'exam_{exam.id}_attempt_id']
             except StuExamAttempt.DoesNotExist:
                 attempt = None
-        else:
-            attempt = None
         
         if not attempt:
             # Create new attempt with explicit started_at
@@ -320,8 +324,6 @@ def appear_exam(request, id):
         start_question_number = (page_obj.number - 1) * QUESTIONS_PER_PAGE + 1
         
         # Calculate remaining time based on attempt's end_time
-        from datetime import datetime
-        now = timezone.now()
         if attempt.end_time and now < attempt.end_time:
             time_remaining = attempt.end_time - now
             total_seconds = int(time_remaining.total_seconds())

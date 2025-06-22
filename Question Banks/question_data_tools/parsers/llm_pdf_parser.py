@@ -12,7 +12,7 @@ parsers_dir = Path(__file__).parent
 sys.path.insert(0, str(parsers_dir))
 
 from common import extract_pdf_content, save_questions_to_json
-from llm_utils import call_openai_api
+from llm_utils import call_openai_api_main
 import openai
 
 class LLMPDFParser:
@@ -60,9 +60,6 @@ class LLMPDFParser:
         
         # Pre-process to separate questions and answers
         questions_text, answers_text = self._separate_questions_and_answers(text)
-        print(questions_text)
-        print("Answers, ")
-        print(answers_text)
         
         # Check if text is too long for OpenAI
         if len(questions_text) > 12000:
@@ -71,7 +68,7 @@ class LLMPDFParser:
         
         # Parse questions using LLM
         print("Using OpenAI API to parse questions...")
-        questions = call_openai_api(questions_text, answers_text)
+        questions = call_openai_api_main(questions_text, answers_text)
         
         if not questions:
             print("No questions extracted")
@@ -107,10 +104,10 @@ class LLMPDFParser:
         # Find where answers section starts
         for indicator in answer_indicators:
             if indicator in text.upper():
-                parts = text.split(indicator, 1)
-                if len(parts) == 2:
-                    questions_text = parts[0].strip()
-                    answers_text = indicator + parts[1].strip()
+                position = text.upper().find(indicator)
+                if position != -1:
+                    questions_text = text[:position].strip()
+                    answers_text = text[position:].strip()
                     print(f"Found answers section starting with: {indicator}")
                     print(f"Questions: {len(questions_text)} chars, Answers: {len(answers_text)} chars")
                     break
