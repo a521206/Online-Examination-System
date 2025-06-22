@@ -384,52 +384,50 @@ def appear_exam(request, id):
             if ans is not None:
                 answers[str(ques.qno)] = ans
         request.session[f'exam_{examMain.id}_answers'] = answers
-        
-        # If not the last page and not final submit, go to next page
-        if page_number < paginator.num_pages and 'final_submit' not in request.POST:
-            next_page = page_number + 1
+
+        # Navigation logic
+        if 'prev_page' in request.POST:
+            prev_page = max(1, page_number - 1)
+            return redirect(f"{request.path}?page={prev_page}")
+
+        if 'next_page' in request.POST:
+            next_page = min(paginator.num_pages, page_number + 1)
             return redirect(f"{request.path}?page={next_page}")
-        
-        # Final submission - save all answers and calculate score
-        attempt.questions.clear()
-        
-        # Optimize bulk creation of student questions
-        student_questions = []
-        for ques in selected_questions:
-            student_question = Stu_Question(
-                student=student,
-                question=ques.question,
-                optionA=ques.optionA,
-                optionB=ques.optionB,
-                optionC=ques.optionC,
-                optionD=ques.optionD,
-                answer=ques.answer,
-                choice=answers.get(str(ques.qno), "")
-            )
-            student_questions.append(student_question)
-        
-        # Bulk create all student questions at once
-        created_questions = Stu_Question.objects.bulk_create(student_questions)
-        attempt.questions.add(*created_questions)
-        
-        attempt.completed_at = timezone.now()
-        
-        # Calculate score
-        examScore = 0
-        for ques in selected_questions:
-            student_ans = answers.get(str(ques.qno), "")
-            if student_ans.lower() == ques.answer.lower() or student_ans == ques.answer:
-                examScore += ques.max_marks
-        attempt.score = examScore
-        attempt.save()
-        
-        # Clean up session data
-        if f'exam_{examMain.id}_answers' in request.session:
-            del request.session[f'exam_{examMain.id}_answers']
-        if f'exam_{examMain.id}_attempt_id' in request.session:
-            del request.session[f'exam_{examMain.id}_attempt_id']
-        
-        return redirect('review_answers', exam_id=examMain.id)
+
+        # Final submit
+        if 'final_submit' in request.POST:
+            attempt.questions.clear()
+            student_questions = []
+            for ques in selected_questions:
+                student_question = Stu_Question(
+                    student=student,
+                    question=ques.question,
+                    optionA=ques.optionA,
+                    optionB=ques.optionB,
+                    optionC=ques.optionC,
+                    optionD=ques.optionD,
+                    answer=ques.answer,
+                    choice=answers.get(str(ques.qno), "")
+                )
+                student_questions.append(student_question)
+            created_questions = Stu_Question.objects.bulk_create(student_questions)
+            attempt.questions.add(*created_questions)
+            attempt.completed_at = timezone.now()
+            examScore = 0
+            for ques in selected_questions:
+                student_ans = answers.get(str(ques.qno), "")
+                if student_ans.lower() == ques.answer.lower() or student_ans == ques.answer:
+                    examScore += ques.max_marks
+            attempt.score = examScore
+            attempt.save()
+            if f'exam_{examMain.id}_answers' in request.session:
+                del request.session[f'exam_{examMain.id}_answers']
+            if f'exam_{examMain.id}_attempt_id' in request.session:
+                del request.session[f'exam_{examMain.id}_attempt_id']
+            return redirect('review_answers', exam_id=examMain.id)
+
+        # If none matched, reload current page
+        return redirect(f"{request.path}?page={page_number}")
 
 @login_required(login_url='login')
 def view_exam_attempts(request, exam_id):

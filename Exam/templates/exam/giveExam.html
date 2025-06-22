@@ -103,7 +103,9 @@
         {% if page_obj.has_next %}
           <button type="submit" name="next_page" value="1" class="btn btn-secondary px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700">Next</button>
         {% endif %}
-        <input type="submit" value="Submit" id="PaperSubmit" name="final_submit" class="btn btn-primary px-6 py-2 rounded bg-green-600 text-white font-bold mt-2" style="max-width:350px;" />
+      </div>
+      <div class="text-center mt-4">
+        <button type="submit" name="final_submit" value="1" id="PaperSubmit" class="btn btn-primary px-6 py-2 rounded bg-green-600 text-white font-bold mt-2" style="max-width:350px;">Submit</button>
       </div>
     </form>
   </main>
@@ -150,5 +152,19 @@
       }
     }, 500);
   });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var submitBtn = document.getElementById('PaperSubmit');
+  if (submitBtn) {
+    submitBtn.addEventListener('click', function(e) {
+      var confirmed = confirm('Warning: Clicking Submit will finalize and submit your exam. You will not be able to make further changes. Are you sure you want to submit?');
+      if (!confirmed) {
+        e.preventDefault();
+      }
+    });
+  }
+});
 </script>
 {% endblock %}
