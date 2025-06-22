@@ -1,5 +1,25 @@
 [
   {
+    "question": "For a thin spherical shell of uniform surface charge density, the magnitude of electric field at a distance $r$, when $r > R$ (radius of shell) is",
+    "optionA": "0",
+    "optionB": "$\\frac{1}{4\\pi\\epsilon_0}\\frac{Q}{r^2}$",
+    "optionC": "$\\frac{Q}{4\\pi\\epsilon_0 r}$",
+    "optionD": "$\\frac{Q}{2\\pi\\epsilon_0 r^2}$",
+    "answer": "B",
+    "solution": "Electric field due to hollow sphere or thin spherical shell: Let a spherical conductor of radius $R$ and a charge $q$ is distributed uniformly over it. At external point—The charge at the surface of radius $r$ is $q$ the effect of their charge is also spherical, let the Gaussian surface is of radius $r$, let a small element on the surface whose area vector is $dS$ and electric field is $E$. But by Gauss theorem $\\oint E \\cdot dS = \\frac{q}{\\epsilon_0}$ so $E = \\frac{1}{4\\pi\\epsilon_0}\\frac{Q}{r^2}$.",
+    "max_marks": 1
+  },
+  {
+    "question": "Two insulated charged copper spheres A and B have their centres separated by a distance of 50 cm. What is the mutual force of electrostatic repulsion if the charge on each is $Q$? The radii of A and B are negligible compared to the distance of separation.",
+    "optionA": "$\\frac{Q^2}{4\\pi\\epsilon_0 \\cdot 0.5^2}$",
+    "optionB": "$\\frac{Q^2}{4\\pi\\epsilon_0 \\cdot 0.25}$",
+    "optionC": "$\\frac{Q^2}{4\\pi\\epsilon_0 \\cdot 0.5}$",
+    "optionD": "$\\frac{Q^2}{4\\pi\\epsilon_0 \\cdot 1}$",
+    "answer": "C",
+    "solution": "",
+    "max_marks": 1
+  },
+  {
     "question": "A conducting sphere of radius 5 cm is charged to 15 C. Another uncharged sphere of radius 10 cm is allowed to touch it for enough time. After the two are separated, the surface density of charge on the two spheres will be in the ratio",
     "optionA": "2:1",
     "optionB": "1:2",
@@ -16,27 +36,17 @@
     "optionC": "coulomb",
     "optionD": "ampere",
     "answer": "C",
-    "solution": "The SI unit of quantity of electric charge is the coulomb, which is equivalent to about 6.242×10^{18} e (e is the charge of a proton).",
+    "solution": "The SI unit of quantity of electric charge is the coulomb, which is equivalent to about $6.242\\times10^{18} e$ (e is the charge of a proton). Hence, the charge of an electron is approximately $-1.602\\times10^{-19} C$. The coulomb is defined as the quantity of charge that has passed through the cross section of an electrical conductor carrying one ampere within one second. The symbol $Q$ is often used to denote a quantity of electricity or charge.",
     "max_marks": 1
   },
   {
     "question": "An electric dipole is",
-    "optionA": "a pair of electric charges of equal magnitude q but positive sign, separated by a distance d",
-    "optionB": "a pair of electric charges of equal magnitude q but opposite sign, separated by a distance",
-    "optionC": "a pair of electric charges of equal magnitude q but negative sign, separated by a distance d",
-    "optionD": "a pair of electric charges of equal magnitude q separated by a distance d",
+    "optionA": "a pair of electric charges of equal magnitude $q$ but positive sign, separated by a distance $d$",
+    "optionB": "a pair of electric charges of equal magnitude $q$ but opposite sign, separated by a distance $d$",
+    "optionC": "a pair of electric charges of equal magnitude $q$ but negative sign, separated by a distance $d$",
+    "optionD": "a pair of electric charges of equal magnitude $q$ separated by a distance $d$",
     "answer": "B",
-    "solution": "An electric dipole is a separation of positive and negative charges.",
-    "max_marks": 1
-  },
-  {
-    "question": "An electric dipole is placed in a uniform electric field E with its dipole moment p parallel to the field. then find",
-    "optionA": "The work done in turning the dipole till its dipole moment points in the direction opposite to E.",
-    "optionB": "The orientation of the dipole for which the torque acting on it becomes maximum.",
-    "optionC": "",
-    "optionD": "",
-    "answer": "",
-    "solution": "",
+    "solution": "An electric dipole is a separation of positive and negative charges. The simplest example of this is a pair of electric charges of equal magnitude but opposite sign, separated by some (usually small) distance. A permanent electric dipole is called an electret.",
     "max_marks": 1
   }
 ]

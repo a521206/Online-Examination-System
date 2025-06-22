@@ -130,7 +130,7 @@ Text to process:
     
     client = openai.OpenAI()
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4-turbo",
         messages=[
             {"role": "system", "content": "Extract educational questions as JSON with exact structure"},
             {"role": "user", "content": prompt}
