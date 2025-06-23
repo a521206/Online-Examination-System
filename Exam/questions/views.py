@@ -228,7 +228,8 @@ def view_exams_student(request):
     if topic_id:
         exams = Exam_Model.objects.filter(
             question_paper__topic_id=topic_id,
-            start_time__gte=timezone.now()
+            start_time__lte=timezone.now(),
+            end_time__gte=timezone.now()
         )
         return render(request, 'partials/_exam_list_student.html', {'exams': exams})
 
@@ -302,16 +303,16 @@ def appear_exam(request, id):
             # Optimize question selection - use database-level random selection
             all_questions = exam.question_paper.questions.all()
             question_count = all_questions.count()
-            
-            if question_count > 10:
+            num_questions = getattr(exam, 'num_questions', 10)
+            if question_count > num_questions:
                 # Use database-level random selection for better performance
                 from django.db.models import Q
                 import random
                 
                 # Get random question IDs efficiently
                 all_qids = list(all_questions.values_list('qno', flat=True))
-                if len(all_qids) > 10:
-                    random_qids = random.sample(all_qids, 10)
+                if len(all_qids) > num_questions:
+                    random_qids = random.sample(all_qids, num_questions)
                     random_qs = Question_DB.objects.filter(qno__in=random_qids)
                 else:
                     random_qs = all_questions
@@ -321,7 +322,7 @@ def appear_exam(request, id):
                 # Also store IDs for backward compatibility
                 attempt.random_qids = ','.join(str(q.qno) for q in random_qs)
             else:
-                # If 10 or fewer questions, use all questions
+                # If num_questions or fewer questions, use all questions
                 attempt.selected_questions.set(all_questions)
                 attempt.random_qids = ','.join(str(q.qno) for q in all_questions)
             attempt.save()

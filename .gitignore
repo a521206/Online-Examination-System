@@ -140,3 +140,8 @@ GitHub.sublime-settings
 !.vscode/launch.json 
 !.vscode/extensions.json 
 .history
+
+# Ignore question data tool directories
+question_data_tools/input/
+question_data_tools/output/
+question_data_tools/working/

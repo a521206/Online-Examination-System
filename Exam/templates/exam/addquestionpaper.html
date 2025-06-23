@@ -1,48 +1,33 @@
 {% extends 'base_faculty.html' %}
 
-{% block body %}
-    <div class="mt-5">
-    </div>
+{% load widget_tweaks %}
 
-<style>
-*{
-  color: #745959;
-}
-button[type=submit]:hover{
-        background: #87FF9B;
-    }
-#id_questions{
-  display:block;
-  width:100%;
-  height:calc(10em);
-  padding:.375rem .75rem;
-  font-size:1rem;
-  font-weight:400;
-  line-height:1.5;
-  color: #745959;
-  background-color:#fff;
-  background-clip:padding-box;
-  border:1px solid #745959;
-  border-radius:.25rem;
-  transition:border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-    }
-</style>
-<div class="row">
-	<div class="col-md-2"></div>
-    <div class="col-md-6">
-        <div class="ml-5 card">
-            <form method="POST" action="{% url 'faculty-add_question_paper' %}">
-                <div class="container">
-                    {% csrf_token %}
-                    {{examform.as_p}}
-                </div>
-                <div class="text-center">
-                <button class= "btn" style="border-color:#745959; color:#745959;" type="submit">Submit</button>
-                </div>
-            </form>
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white/80 rounded-xl shadow-lg p-8 mt-8">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Add New Question Paper</h2>
+    <form method="POST" action="{% url 'faculty-add_question_paper' %}" class="space-y-6">
+        {% csrf_token %}
+        <div class="space-y-4">
+            <div>
+                <label for="id_course" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                {{ examform.course|add_class:'block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50' }}
+            </div>
+            <div>
+                <label for="id_topic" class="block text-sm font-medium text-gray-700 mb-1">Topic</label>
+                {{ examform.topic|add_class:'block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50' }}
+            </div>
+            <div>
+                <label for="id_qPaperTitle" class="block text-sm font-medium text-gray-700 mb-1">Question Paper Title</label>
+                {{ examform.qPaperTitle|add_class:'block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50' }}
+            </div>
+            <div>
+                <label for="id_questions" class="block text-sm font-medium text-gray-700 mb-1">Questions</label>
+                {{ examform.questions|add_class:'block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-48' }}
+                <p class="text-xs text-gray-500 mt-1">Hold Ctrl (Windows) or Command (Mac) to select multiple questions.</p>
+            </div>
         </div>
-        </div>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold shadow-md transition-all duration-200">Submit</button>
+    </form>
+    <a href="{% url 'faculty-index' %}" class="inline-block mt-6 px-5 py-2 bg-gray-400 text-white rounded-lg font-semibold shadow hover:bg-gray-600 transition">Back to Dashboard</a>
 </div>
-
-
 {% endblock %}

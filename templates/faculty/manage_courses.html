@@ -1,17 +1,17 @@
 {% extends 'base_faculty.html' %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Manage Subjects</h2>
-    <a href="{% url 'add_course' %}" class="btn btn-primary mb-3">Add New Subject</a>
-    <ul class="list-group">
+<div class="max-w-2xl mx-auto bg-white/80 rounded-xl shadow-lg p-8 mt-8">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Manage Subjects</h2>
+    <a href="{% url 'add_course' %}" class="inline-block mb-4 px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold shadow hover:bg-blue-700 transition">Add New Subject</a>
+    <ul class="divide-y divide-gray-200">
         {% for course in courses %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ course.name }} ({{ course.course_Code }})
-                <a href="{% url 'manage_topics' course.id %}" class="btn btn-secondary btn-sm">Manage Topics</a>
+            <li class="flex items-center justify-between py-3">
+                <span class="text-lg text-gray-700 font-medium">{{ course.name }} <span class="text-gray-400">({{ course.course_Code }})</span></span>
+                <a href="{% url 'manage_topics' course.id %}" class="px-4 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition text-sm font-semibold">Manage Topics</a>
             </li>
         {% empty %}
-            <li class="list-group-item">No subjects found.</li>
+            <li class="py-3 text-gray-500 text-center">No subjects found.</li>
         {% endfor %}
     </ul>
 </div>

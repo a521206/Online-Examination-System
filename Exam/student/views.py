@@ -263,12 +263,13 @@ def appear_exam(request, id):
             request.session[f'exam_{exam.id}_attempt_id'] = attempt.id
             all_questions = exam.question_paper.questions.all()
             question_count = all_questions.count()
-            if question_count > 10:
+            num_questions = getattr(exam, 'num_questions', 10)
+            if question_count > num_questions:
                 from django.db.models import Q
                 import random
                 all_qids = list(all_questions.values_list('qno', flat=True))
-                if len(all_qids) > 10:
-                    random_qids = random.sample(all_qids, 10)
+                if len(all_qids) > num_questions:
+                    random_qids = random.sample(all_qids, num_questions)
                     random_qs = Question_DB.objects.filter(qno__in=random_qids)
                 else:
                     random_qs = all_questions

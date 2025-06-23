@@ -4,27 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exam Portal Faculty</title>
-    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="{% static 'css/main.css' %}" rel="stylesheet">
 </head>
-<body>
-    <nav class="navbar navbar-light" style="background-color: #87ff9b">
-        <a href="{% url 'faculty-index' %}" style="color:#745959">Home</a>
-        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <ul class="navbar-nav px-3" style="display:flex;flex-direction:row;align-items:center">
-            <li class="nav-item text-nowrap">
-                <a class="nav-link" href="#">{{request.user.username}}</a>
-            </li>
-        </ul>
-    </nav>
-
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
+    <!-- Fixed header -->
+    <header class="fixed top-0 left-0 w-full h-16 bg-green-100 shadow flex items-center justify-between px-6 z-40 md:pl-64">
+        <a href="{% url 'faculty-index' %}" class="text-lg font-bold text-gray-700">Exam Portal Faculty</a>
+        <div class="flex items-center space-x-4">
+            <span class="text-gray-600 font-medium">{{request.user.username}}</span>
+        </div>
+    </header>
     {% include 'partials/_sidebar_faculty.html' %}
-
-    {% block body %}
-    {% endblock %}
-
+    <main class="pt-20 md:pl-64 px-4 pb-8">
+        {% block content %}
+        {% endblock %}
+    </main>
     <script src="https://kit.fontawesome.com/a076d05399.js"></script>
 </body>
 </html>

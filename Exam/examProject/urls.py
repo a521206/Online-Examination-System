@@ -22,6 +22,7 @@ urlpatterns = [
     path('faculty/',include('faculty.urls')),
     path('student-pref/',include('studentPreferences.urls')),
     path('exams/',include('questions.urls')),
+    path('course/', include('course.urls')),
     path('',views.index,name = "homepage")
 ]
 

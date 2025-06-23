@@ -75,8 +75,9 @@ class StuExamAttempt(models.Model):
             qids = [int(qid) for qid in self.random_qids.split(',')]
             return Question_DB.objects.filter(qno__in=qids).order_by('qno')
         else:
-            # If no questions selected, return first 10 from question paper
-            return self.qpaper.questions.all()[:10]
+            # If no questions selected, return first N from question paper
+            num = self.exam.num_questions if hasattr(self.exam, 'num_questions') else 10
+            return self.qpaper.questions.all()[:num]
 
 
 class StuResults_DB(models.Model):

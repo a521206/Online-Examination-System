@@ -42,6 +42,9 @@ class Course(models.Model):
     course_Code = models.CharField(max_length=10)
     credit_units = models.IntegerField()
 
+    def __str__(self):
+        return self.name
+
 class CourseRegistration(models.Model):
     student = models.ForeignKey(StudentAcceptance, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)

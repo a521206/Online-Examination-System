@@ -1,83 +1,46 @@
 {% extends 'base_faculty.html' %}
 
-{% block body %}
-    <style>
-    body{
-      background-color: #f5f5f5;
-    }
-
-    *{
-      color: #745959;
-    }
-
-    .cards{
-      width: 25em;
-      height: 15em;
-      background-color: white;
-      display: flex;
-      align-items:center;
-      justify-content: center;
-      background-color: #87ff9b;
-    }
-    .distribute{
-	  padding-left: 5em;
-      display: grid;
-      grid-template-columns: 33.33% 33.33% auto;
-    }
-    .jumbotron{
-      padding-top: 5em;
-      padding-bottom: 15em;
-    }
-
-    .cards h2 {
-      display: none;
-    }
-    .cards:hover h1{
-      display: none;
-      transition: all 0.3s ease;
-    }
-    .cards:hover h2 {
-      display: flex;
-      text-align: center;
-      padding-left: 1em;
-      padding-right: 1em;
-      transition: all 0.3s ease;
-    }
-    .cards:hover {
-      transform: translateX(-0.5em);
-      transform: translateY(-0.5em);
-      box-shadow: 0.7em 0.7em 0.5em #d6d6d6;
-      transition: 0.3s ease;
-    }
-
-
-    </style>
-    <div class="container mt-5">
-      {% include 'partials/_messages.html' %}
-    </div>
-    <div class="container mt-5 text-center">
-      <h3>Instructions to create New Exam</h3>
-    </div>
-    <div class="container mt-5">
-    </div>
-    <div class="distribute">
-      <a href="{% url 'faculty-addquestions' %}">
-        <div class="cards">
-          <h1>First Step</h1>
-          <h2>First you will have to create new questions to be added in question paper</h2>
+{% block content %}
+<div class="max-w-4xl mx-auto py-12">
+    <div class="text-center mb-10">
+        <div class="w-20 h-20 bg-blue-600 bg-opacity-90 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <i class="bi bi-mortarboard text-4xl text-white"></i>
         </div>
-      </a>
-      <a  href="{% url 'faculty-add_question_paper' %}">
-        <div class="cards">
-          <h1>Second Step</h1>
-          <h2>Now Create question paper and add those questions.</h2>
-        </div>
-      </a>
-      <a href="{% url 'view_exams' %}">
-        <div class="cards">
-          <h1>Third Step</h1>
-          <h2>Finally you can create an exam paper and add the question paper.</h2>
-        </div>
-      </a>
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">Faculty Dashboard</h1>
+        <p class="text-lg text-gray-600">Welcome! Use the quick links below to manage your exams, question papers, and students.</p>
     </div>
-  {% endblock %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <a href="{% url 'faculty-add_question_paper' %}" class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 flex flex-col items-center hover:-translate-y-1 hover:shadow-xl transition-all duration-200">
+            <i class="bi bi-file-earmark-plus text-3xl text-blue-600 mb-4"></i>
+            <span class="text-xl font-semibold text-gray-900 mb-2">Add Question Paper</span>
+            <span class="text-gray-600 text-center">Create and manage question papers for your topics.</span>
+        </a>
+        <a href="{% url 'faculty-addquestions' %}" class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 flex flex-col items-center hover:-translate-y-1 hover:shadow-xl transition-all duration-200">
+            <i class="bi bi-question-circle text-3xl text-green-600 mb-4"></i>
+            <span class="text-xl font-semibold text-gray-900 mb-2">Add Questions</span>
+            <span class="text-gray-600 text-center">Add or edit questions for your exams.</span>
+        </a>
+        <a href="{% url 'manage_courses' %}" class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 flex flex-col items-center hover:-translate-y-1 hover:shadow-xl transition-all duration-200">
+            <i class="bi bi-journal-bookmark text-3xl text-purple-600 mb-4"></i>
+            <span class="text-xl font-semibold text-gray-900 mb-2">Manage Courses & Topics</span>
+            <span class="text-gray-600 text-center">Organize your subjects and topics.</span>
+        </a>
+        <a href="{% url 'view_exams' %}" class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 flex flex-col items-center hover:-translate-y-1 hover:shadow-xl transition-all duration-200">
+            <i class="bi bi-calendar-event text-3xl text-yellow-600 mb-4"></i>
+            <span class="text-xl font-semibold text-gray-900 mb-2">Schedule/View Exams</span>
+            <span class="text-gray-600 text-center">Schedule new exams or view existing ones.</span>
+        </a>
+        <a href="{% url 'faculty-result' %}" class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 flex flex-col items-center hover:-translate-y-1 hover:shadow-xl transition-all duration-200">
+            <i class="bi bi-bar-chart-line text-3xl text-pink-600 mb-4"></i>
+            <span class="text-xl font-semibold text-gray-900 mb-2">View Results</span>
+            <span class="text-gray-600 text-center">See student results and analytics.</span>
+        </a>
+        <form method="post" action="{% url 'faculty-logout' %}" class="w-full">
+            {% csrf_token %}
+            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-semibold shadow-md transition-all duration-200 mt-8">
+                <i class="bi bi-box-arrow-right mr-2"></i> Logout
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

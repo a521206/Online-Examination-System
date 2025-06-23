@@ -81,6 +81,21 @@ class LLMPDFParser:
             print("-" * 40)
             self.process_single_file(pdf_file)
     
+    def process_single_or_all_files(self, specific_file=None):
+        """Process a specific PDF file if provided, else all files."""
+        if specific_file:
+            pdf_path = Path(specific_file)
+            if not pdf_path.is_absolute():
+                pdf_path = self.input_dir / pdf_path
+            if not pdf_path.exists():
+                print(f"File not found: {pdf_path}")
+                return
+            print(f"\nProcessing single file: {pdf_path.name}")
+            print("-" * 40)
+            self.process_single_file(pdf_path)
+        else:
+            self.process_all_files()
+
     def process_single_file(self, pdf_path):
         """Process a single PDF file, from extraction to final output."""
         paths = self._get_interim_paths(pdf_path)
@@ -277,11 +292,12 @@ def main():
     """Main function to run the parser from the command line."""
     parser = argparse.ArgumentParser(description="LLM PDF Parser with interim file support.")
     parser.add_argument('--restart', action='store_true', help='Delete interim files and restart processing')
+    parser.add_argument('--file', type=str, default=None, help='Process only the specified PDF file (by name or path)')
     args = parser.parse_args()
     
     try:
         llm_parser = LLMPDFParser(restart=args.restart)
-        llm_parser.process_all_files()
+        llm_parser.process_single_or_all_files(specific_file=args.file)
     except ValueError as e:
         print(f"Error: {e}")
         sys.exit(1)
