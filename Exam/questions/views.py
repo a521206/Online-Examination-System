@@ -20,6 +20,7 @@ from django.core.paginator import Paginator
 import random
 from utils.performance_monitor import monitor_performance
 import time
+from utils import validate_short_answers_with_llm, ShortAnswerValidationRequest
 
 def has_group(user, group_name):
     group = Group.objects.get(name=group_name)
@@ -398,7 +399,11 @@ def appear_exam(request, id):
         if 'final_submit' in request.POST:
             attempt.questions.clear()
             student_questions = []
-            for ques in selected_questions:
+            # Collect short answer validation requests
+            short_answer_requests = []
+            short_answer_indices = []  # To map back to questions
+            for idx, ques in enumerate(selected_questions):
+                student_ans = answers.get(str(ques.qno), "")
                 if ques.question_type == 'MCQ':
                     student_question = Stu_Question(
                         student=student,
@@ -421,20 +426,47 @@ def appear_exam(request, id):
                         answer=ques.short_answer or '',
                         choice=answers.get(str(ques.qno), "")
                     )
+                    short_answer_requests.append(
+                        ShortAnswerValidationRequest(
+                            question=ques.question,
+                            correct_answer=ques.short_answer or '',
+                            student_answer=student_ans or ''
+                        )
+                    )
+                    short_answer_indices.append(idx)
                 student_questions.append(student_question)
             created_questions = Stu_Question.objects.bulk_create(student_questions)
             attempt.questions.add(*created_questions)
             attempt.completed_at = timezone.now()
             examScore = 0
-            for ques in selected_questions:
+            # Collect short answer validation requests
+            short_answer_requests = []
+            short_answer_indices = []  # To map back to questions
+            for idx, ques in enumerate(selected_questions):
                 student_ans = answers.get(str(ques.qno), "")
                 if ques.question_type == 'MCQ':
                     if student_ans.upper() == (ques.mcq_answer or '').upper():
                         examScore += ques.max_marks
                 elif ques.question_type == 'SHORT':
-                    # For short answer, you may want to use a more sophisticated comparison
-                    if student_ans.strip().lower() == (ques.short_answer or '').strip().lower():
+                    short_answer_requests.append(
+                        ShortAnswerValidationRequest(
+                            question=ques.question,
+                            correct_answer=ques.short_answer or '',
+                            student_answer=student_ans or ''
+                        )
+                    )
+                    short_answer_indices.append(idx)
+            # Batch validate short answers with LLM
+            if short_answer_requests:
+                results = validate_short_answers_with_llm(short_answer_requests)
+                for i, result in enumerate(results):
+                    idx = short_answer_indices[i]
+                    ques = selected_questions[idx]
+                    if result.is_correct:
                         examScore += ques.max_marks
+                    # Store the LLM explanation in the Stu_Question or elsewhere as needed
+                    # For now, add to ques.llm_explanation (if such a field exists), or skip
+                    # Optionally, you can update the Stu_Question after creation
             attempt.score = examScore
             attempt.save()
             if f'exam_{examMain.id}_answers' in request.session:
