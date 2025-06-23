@@ -25,6 +25,8 @@ class Stu_Question(models.Model):
     optionD = models.CharField(max_length=100, blank=True, default='')
     answer = models.CharField(max_length=200, blank=True, default='')
     choice = models.CharField(max_length=10, blank=True, default='')
+    marks_awarded = models.FloatField(default=0)
+    llm_explanation = models.TextField(blank=True, default='')
 
 class StuExamAttempt(models.Model):
     student = models.ForeignKey(User, limit_choices_to={'groups__name': "Student"}, on_delete=models.CASCADE)

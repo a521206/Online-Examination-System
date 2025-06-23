@@ -21,6 +21,8 @@ import random
 from utils.performance_monitor import monitor_performance
 import time
 from utils import validate_short_answers_with_llm, ShortAnswerValidationRequest
+import openai
+import os
 
 def has_group(user, group_name):
     group = Group.objects.get(name=group_name)
@@ -424,13 +426,15 @@ def appear_exam(request, id):
                         optionC='',
                         optionD='',
                         answer=ques.short_answer or '',
-                        choice=answers.get(str(ques.qno), "")
+                        choice=answers.get(str(ques.qno), ""),
+                        # Will update marks_awarded and llm_explanation after LLM call
                     )
                     short_answer_requests.append(
                         ShortAnswerValidationRequest(
                             question=ques.question,
                             correct_answer=ques.short_answer or '',
-                            student_answer=student_ans or ''
+                            student_answer=student_ans or '',
+                            max_marks=ques.max_marks
                         )
                     )
                     short_answer_indices.append(idx)
@@ -452,21 +456,26 @@ def appear_exam(request, id):
                         ShortAnswerValidationRequest(
                             question=ques.question,
                             correct_answer=ques.short_answer or '',
-                            student_answer=student_ans or ''
+                            student_answer=student_ans or '',
+                            max_marks=ques.max_marks
                         )
                     )
                     short_answer_indices.append(idx)
             # Batch validate short answers with LLM
             if short_answer_requests:
-                results = validate_short_answers_with_llm(short_answer_requests)
+                client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+                results = validate_short_answers_with_llm(short_answer_requests, client=client)
+                # Update created Stu_Question objects with LLM feedback
                 for i, result in enumerate(results):
                     idx = short_answer_indices[i]
-                    ques = selected_questions[idx]
-                    if result.is_correct:
-                        examScore += ques.max_marks
-                    # Store the LLM explanation in the Stu_Question or elsewhere as needed
-                    # For now, add to ques.llm_explanation (if such a field exists), or skip
-                    # Optionally, you can update the Stu_Question after creation
+                    # Find the corresponding Stu_Question (SHORT) object
+                    for q in created_questions:
+                        if q.question == selected_questions[idx].question and q.answer == (selected_questions[idx].short_answer or ''):
+                            q.marks_awarded = result.marks_awarded
+                            q.llm_explanation = result.explanation
+                            q.save()
+                            break
+                    examScore += result.marks_awarded
             attempt.score = examScore
             attempt.save()
             if f'exam_{examMain.id}_answers' in request.session:
@@ -507,64 +516,84 @@ def review_answers(request, exam_id):
     exam = Exam_Model.objects.get(pk=exam_id)
     attempt_id = request.GET.get('attempt_id')
     from student.models import StuExamAttempt
+    
+    # Optimize query with prefetch_related
     if attempt_id:
-        attempt = StuExamAttempt.objects.filter(student=student, exam=exam, id=attempt_id).first()
+        attempt = StuExamAttempt.objects.prefetch_related('questions', 'selected_questions').filter(student=student, exam=exam, id=attempt_id).first()
     else:
-        attempt = StuExamAttempt.objects.filter(student=student, exam=exam).order_by('-started_at').first()
+        attempt = StuExamAttempt.objects.prefetch_related('questions', 'selected_questions').filter(student=student, exam=exam).order_by('-started_at').first()
+    
     if not attempt:
         return render(request, 'exam/review_answers.html', {'exam': exam, 'review_data': [], 'summary': {}})
     
-    # Get the questions that were selected for this specific attempt
-    questions = list(attempt.get_selected_questions())
+    # Get the questions from the question bank that were selected for this attempt
+    questions_from_bank = list(attempt.get_selected_questions())
     
-    student_questions = attempt.questions.all()
-    answer_map = {q.question: q.choice for q in student_questions}
+    # Get the student's submitted answers and map them by question text for easy lookup
+    student_question_map = {sq.question: sq for sq in attempt.questions.all()}
+    
     review_data = []
-    total_marks = 0
-    correct = 0
-    wrong = 0
-    not_attempted = 0
+    correct_count = 0
+    wrong_count = 0
+    not_attempted_count = 0
     total_possible_marks = 0
-    for ques in questions:
-        student_ans = answer_map.get(ques.question, "")
+
+    for ques_db in questions_from_bank:
+        student_question = student_question_map.get(ques_db.question)
+        student_ans = student_question.choice if student_question else ""
+        
         is_correct = False
-        if ques.question_type == 'MCQ':
-            is_correct = (student_ans.upper() == (ques.mcq_answer or '').upper())
-            correct_answer = ques.mcq_answer
-        elif ques.question_type == 'SHORT':
-            is_correct = (student_ans.strip().lower() == (ques.short_answer or '').strip().lower())
-            correct_answer = None
+        marks_awarded = 0
+        llm_explanation = ""
+        
+        if ques_db.question_type == 'MCQ':
+            is_correct = (student_ans.upper() == (ques_db.mcq_answer or '').upper())
+            if student_question:
+                marks_awarded = ques_db.max_marks if is_correct else 0
+        elif ques_db.question_type == 'SHORT':
+            if student_question:
+                marks_awarded = student_question.marks_awarded
+                llm_explanation = student_question.llm_explanation
+                is_correct = marks_awarded == ques_db.max_marks
+
         review_data.append({
-            'question_type': ques.question_type,
-            'question': ques.question,
-            'optionA': getattr(ques, 'optionA', ''),
-            'optionB': getattr(ques, 'optionB', ''),
-            'optionC': getattr(ques, 'optionC', ''),
-            'optionD': getattr(ques, 'optionD', ''),
-            'mcq_answer': getattr(ques, 'mcq_answer', ''),
-            'short_answer': getattr(ques, 'short_answer', ''),
+            'question_type': ques_db.question_type,
+            'question': ques_db.question,
+            'optionA': getattr(ques_db, 'optionA', ''),
+            'optionB': getattr(ques_db, 'optionB', ''),
+            'optionC': getattr(ques_db, 'optionC', ''),
+            'optionD': getattr(ques_db, 'optionD', ''),
+            'mcq_answer': getattr(ques_db, 'mcq_answer', ''),
+            'short_answer': ques_db.short_answer,
             'student_answer': student_ans,
             'is_correct': is_correct,
-            'solution': getattr(ques, 'solution', ''),
+            'solution': getattr(ques_db, 'solution', ''),
+            'marks_awarded': marks_awarded,
+            'llm_explanation': llm_explanation,
+            'max_marks': ques_db.max_marks,
         })
-        total_possible_marks += ques.max_marks
-        if student_ans == "" or student_ans is None:
-            not_attempted += 1
+        
+        total_possible_marks += ques_db.max_marks
+        
+        if not student_ans:
+            not_attempted_count += 1
         elif is_correct:
-            correct += 1
-            total_marks += ques.max_marks
+            correct_count += 1
         else:
-            wrong += 1
+            wrong_count += 1
+
+    summary = {
+        'total_marks': attempt.score,
+        'correct': correct_count,
+        'wrong': wrong_count,
+        'not_attempted': not_attempted_count,
+        'total_possible_marks': total_possible_marks
+    }
+    
     return render(request, 'exam/review_answers.html', {
         'exam': exam,
         'review_data': review_data,
-        'summary': {
-            'total_marks': total_marks,
-            'correct': correct,
-            'wrong': wrong,
-            'not_attempted': not_attempted,
-            'total_possible_marks': total_possible_marks
-        }
+        'summary': summary
     })
 
 def upload_questions_excel(request):
