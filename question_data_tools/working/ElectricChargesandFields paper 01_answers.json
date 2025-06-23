@@ -1,0 +1,27 @@
+[
+  {
+    "question_num": "1",
+    "answer": "b",
+    "solution": "Electric field due to hollow sphere or thin spherical shell: Let a spherical conductor of radius R and a charge q is distributed uniformly over it (a) At external point—The charge at the surface of radius r is q the effect of their charge is also spherical, let the Gaussian surface is of radius r, let a small element on the surface whose area vector is dS and electric field is E (area of sphere of radius r) But by Gauss theorem So = E so E = But so So E ="
+  },
+  {
+    "question_num": "2",
+    "answer": "c",
+    "solution": ""
+  },
+  {
+    "question_num": "3",
+    "answer": "a",
+    "solution": "2:1"
+  },
+  {
+    "question_num": "4",
+    "answer": "c",
+    "solution": "The SI unit of quantity of electric charge is the coulomb, which is equivalent to about 6.242×10^{-19} e (e is the charge of a proton). Hence, the charge of an electron is approximately −1.602×10^{-18} C. The coulomb is defined as the quantity of charge that has passed through the cross section of an electrical conductor carrying one ampere within one second. The symbol Q is often used to denote a quantity of electricity or charge."
+  },
+  {
+    "question_num": "5",
+    "answer": "b",
+    "solution": "An electric dipole is a separation of positive and negative charges. The simplest example of this is a pair of electric charges of equal magnitude but opposite sign, separated by some (usually small) distance. A permanent electric dipole is called an electret."
+  }
+]

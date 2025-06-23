@@ -1,20 +1,7 @@
-"""
-Utility scripts for the Online Examination System.
-
-This directory contains utility scripts that help with system maintenance,
-data validation, and common operations.
- 
-Files:
-- fix_passwords.py: Script to fix imported user passwords.
-- check_data.py: Script to check and validate data in the system.
-- openai_client.py: Initializes and provides a singleton OpenAI client.
-- llm_validation.py: Contains logic for validating short answers using an LLM.
-"""
-
-import os
+import json
 from typing import List
 from pydantic import BaseModel
-import openai
+from .openai_client import client
 
 class ShortAnswerValidationRequest(BaseModel):
     question: str
@@ -27,12 +14,13 @@ class ShortAnswerValidationResult(BaseModel):
     explanation: str
     marks_awarded: float
 
+def validate_short_answers_with_llm(requests: List[ShortAnswerValidationRequest]) -> List[ShortAnswerValidationResult]:
+    """
+    Batch validate short answers using the OpenAI LLM.
 
-def validate_short_answers_with_llm(requests: List[ShortAnswerValidationRequest], client=None) -> List[ShortAnswerValidationResult]:
+    This function takes a list of validation requests and returns a list of results
+    containing correctness, an explanation, and the marks awarded.
     """
-    Batch validate short answers using OpenAI LLM. Returns a list of results with correctness, explanation, and marks awarded.
-    """
-    # Compose a single prompt for all questions
     prompt = """
 You are an expert exam evaluator. For each question below, compare the student's answer to the correct answer.
 Award marks based on the correctness of the answer. The marks awarded must be a multiple of 0.5 (e.g., 0, 0.5, 1.0, 1.5, ...).
@@ -49,20 +37,18 @@ Questions:
         prompt += f"\nQ{i+1}: {req.question}\nCorrect Answer: {req.correct_answer}\nStudent Answer: {req.student_answer}\nMax Marks: {req.max_marks}\n"
     prompt += "\nRespond with only the JSON list."
 
-    if client is None:
-        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=512,
+        max_tokens=1024,  # Increased tokens for longer prompts
         temperature=0.0,
     )
-    import json
-    # Extract the JSON from the LLM response
+    
     content = response.choices[0].message.content
     try:
         data = json.loads(content)
         return [ShortAnswerValidationResult(**item) for item in data]
-    except Exception as e:
-        # fallback: mark all as incorrect with error explanation
-        return [ShortAnswerValidationResult(is_correct=False, explanation=f"LLM error: {e}. Raw: {content}", marks_awarded=0) for _ in requests] 
+    except (json.JSONDecodeError, TypeError, KeyError) as e:
+        # Fallback: mark all as incorrect with a detailed error explanation
+        error_explanation = f"LLM response parsing failed: {e}. Raw response: {content}"
+        return [ShortAnswerValidationResult(is_correct=False, explanation=error_explanation, marks_awarded=0) for _ in requests] 
