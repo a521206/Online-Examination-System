@@ -29,60 +29,75 @@
         {% endfor %}
     {% endif %}
 
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        
+        <!-- Student Form Fields -->
         <div class="form-field">
-            <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+            <label for="{{ student_form.username.id_for_label }}" class="form-label">Username</label>
             <div class="form-input-wrapper">
                 <div class="form-input-icon">
                     <i class="bi bi-person"></i>
                 </div>
-                {{ form.username }}
+                {{ student_form.username }}
             </div>
-            {% if form.username.errors %}
-                <div class="form-error">{{ form.username.errors.0 }}</div>
+            {% if student_form.username.errors %}
+                <div class="form-error">{{ student_form.username.errors.0 }}</div>
             {% endif %}
         </div>
 
         <div class="form-field">
-            <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+            <label for="{{ student_form.email.id_for_label }}" class="form-label">Email</label>
             <div class="form-input-wrapper">
                 <div class="form-input-icon">
                     <i class="bi bi-envelope"></i>
                 </div>
-                {{ form.email }}
+                {{ student_form.email }}
             </div>
-            {% if form.email.errors %}
-                <div class="form-error">{{ form.email.errors.0 }}</div>
+            {% if student_form.email.errors %}
+                <div class="form-error">{{ student_form.email.errors.0 }}</div>
             {% endif %}
         </div>
 
         <div class="form-field">
-            <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+            <label for="{{ student_form.password.id_for_label }}" class="form-label">Password</label>
             <div class="form-input-wrapper">
                 <div class="form-input-icon">
                     <i class="bi bi-lock"></i>
                 </div>
-                {{ form.password1 }}
+                {{ student_form.password }}
             </div>
-            {% if form.password1.errors %}
-                <div class="form-error">{{ form.password1.errors.0 }}</div>
+            {% if student_form.password.errors %}
+                <div class="form-error">{{ student_form.password.errors.0 }}</div>
             {% endif %}
         </div>
 
+        {% if student_form.first_name %}
         <div class="form-field">
-            <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+            <label for="{{ student_form.first_name.id_for_label }}" class="form-label">First Name</label>
             <div class="form-input-wrapper">
                 <div class="form-input-icon">
-                    <i class="bi bi-lock-fill"></i>
+                    <i class="bi bi-person"></i>
                 </div>
-                {{ form.password2 }}
+                {{ student_form.first_name }}
             </div>
-            {% if form.password2.errors %}
-                <div class="form-error">{{ form.password2.errors.0 }}</div>
+            {% if student_form.first_name.errors %}
+                <div class="form-error">{{ student_form.first_name.errors.0 }}</div>
             {% endif %}
         </div>
+        {% endif %}
+
+        <!-- Student Info Form Fields -->
+        {% for field in student_info_form %}
+            <div class="form-field">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                <div class="form-input-wrapper">
+                    {{ field }}
+                </div>
+                {% if field.errors %}
+                    <div class="form-error">{{ field.errors.0 }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
 
         <button type="submit" class="btn btn-success btn-full">
             <i class="bi bi-person-plus mr-2"></i>
