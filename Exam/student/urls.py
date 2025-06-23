@@ -18,4 +18,10 @@ urlpatterns = [
     path('reset-password_sent/',auth_views.PasswordResetDoneView.as_view(template_name="student/resetPasswordSent.html"),name="password_reset_done"),
     path('reset/<uidb64>/<token>/',auth_views.PasswordResetConfirmView.as_view(template_name="student/setNewPassword.html"),name="password_reset_confirm"),
     path('reset-password-complete/',auth_views.PasswordResetCompleteView.as_view(template_name="student/resetPasswordDone.html"),name="password_reset_complete"),
+    path('exams/', views.view_exams_student, name='student-exams'),
+    path('exams/previous/', views.student_view_previous, name='student-previous'),
+    path('exams/appear/<int:id>/', views.appear_exam, name='appear-exam'),
+    path('exams/answers/<int:exam_id>/', views.review_answers, name='review_answers'),
+    path('exams/attempts/<int:exam_id>/', views.view_exam_attempts, name='view_exam_attempts'),
+    path('exams/attendance/', views.view_students_attendance, name='view_students_attendance'),
 ]

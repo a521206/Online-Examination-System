@@ -1,20 +1,21 @@
 {% extends 'base_auth.html' %}
+{% load widget_tweaks %}
 
 {% block title %}Student Login{% endblock %}
 
 {% block content %}
-<div class="text-center mb-8">
-    <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+<div class="text-center mb-8 animate-fade-in">
+    <div class="w-16 h-16 bg-blue-600 bg-opacity-90 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
         <i class="bi bi-person-circle text-3xl text-white"></i>
     </div>
     <h1 class="text-3xl font-bold text-gray-900 mb-2">Student Login</h1>
     <p class="text-gray-600">Sign in to access your exam portal</p>
 </div>
 
-<div class="bg-white rounded-xl shadow-xl border border-gray-100 p-8">
+<div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-100 p-8 animate-fade-in">
     {% if messages %}
         {% for message in messages %}
-            <div class="p-4 rounded-lg border flex items-start mb-3 {% if message.tags == 'success' %}bg-green-50 border-green-200 text-green-800{% elif message.tags == 'error' %}bg-red-50 border-red-200 text-red-800{% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-200 text-yellow-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %}">
+            <div class="p-4 rounded-lg border flex items-start mb-3 transition-all duration-300 {% if message.tags == 'success' %}bg-green-50 border-green-200 text-green-800{% elif message.tags == 'error' %}bg-red-50 border-red-200 text-red-800{% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-200 text-yellow-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %}">
                 <div class="flex-shrink-0 mr-3">
                     {% if message.tags == 'error' %}
                         <i class="bi bi-exclamation-circle"></i>
@@ -31,7 +32,6 @@
 
     <form method="post" class="space-y-6">
         {% csrf_token %}
-        
         <div class="space-y-2">
             <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">
                 Username
@@ -40,7 +40,7 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <i class="bi bi-person text-gray-400"></i>
                 </div>
-                {{ form.username }}
+                {{ form.username|add_class:'pl-10 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 w-full transition-all duration-200 bg-white/80' }}
             </div>
             {% if form.username.errors %}
                 <div class="text-sm text-red-600 mt-1">
@@ -57,7 +57,7 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <i class="bi bi-lock text-gray-400"></i>
                 </div>
-                {{ form.password }}
+                {{ form.password|add_class:'pl-10 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 w-full transition-all duration-200 bg-white/80' }}
             </div>
             {% if form.password.errors %}
                 <div class="text-sm text-red-600 mt-1">
@@ -66,29 +66,39 @@
             {% endif %}
         </div>
 
-        <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2">
             <i class="bi bi-box-arrow-in-right mr-2"></i>
             Sign In
         </button>
     </form>
 </div>
 
-<div class="mt-6 text-center space-y-4">
+<div class="mt-6 text-center space-y-4 animate-fade-in">
     <div class="text-sm text-gray-600">
         Don't have an account? 
-        <a href="{% url 'student-register' %}" class="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+        <a href="{% url 'register' %}" class="font-medium text-blue-600 hover:text-blue-500 transition-colors">
             Register here
         </a>
     </div>
     <div class="text-sm text-gray-600">
-        <a href="{% url 'student-reset-password' %}" class="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+        <a href="{% url 'password_reset' %}" class="font-medium text-blue-600 hover:text-blue-500 transition-colors">
             Forgot your password?
         </a>
     </div>
 </div>
 
-<div class="mt-8 text-center">
+<div class="mt-8 text-center animate-fade-in">
     <p class="text-sm text-gray-500">Need help? Contact your administrator</p>
 </div>
+
+<style>
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+.animate-fade-in {
+  animation: fade-in 0.7s cubic-bezier(0.4,0,0.2,1) both;
+}
+</style>
 {% endblock %}
 

@@ -31,3 +31,9 @@ class CourseRegistrationAdmin(admin.ModelAdmin):
 class SessionAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
+
+@admin.register(Topic)
+class TopicAdmin(admin.ModelAdmin):
+    list_display = ('name', 'course')
+    list_filter = ('course',)
+    search_fields = ('name', 'course__name')

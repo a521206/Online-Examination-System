@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'studentPreferences',
     'questions',
     'faculty',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [

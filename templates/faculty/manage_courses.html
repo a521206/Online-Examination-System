@@ -1,0 +1,18 @@
+{% extends 'base_faculty.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Manage Subjects</h2>
+    <a href="{% url 'add_course' %}" class="btn btn-primary mb-3">Add New Subject</a>
+    <ul class="list-group">
+        {% for course in courses %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ course.name }} ({{ course.course_Code }})
+                <a href="{% url 'manage_topics' course.id %}" class="btn btn-secondary btn-sm">Manage Topics</a>
+            </li>
+        {% empty %}
+            <li class="list-group-item">No subjects found.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %} 

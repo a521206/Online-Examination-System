@@ -4,82 +4,64 @@
 
 
 {% block body %}
-<style>
-/* *{
-	color: #745959;
-} */
-img{
-  width:25em;
-  height:22.6em;
-  transform:translateX(6em);
-
-}
-.row{
-  display: grid;
-    padding: 5% 15% 20% 10%;
-    background: rgba(0,0,0,0.5);
-  grid-template-columns: 40% auto;
-}
-input[type=submit]:hover{
-        background: #A3D5FF;
-    }
-.overlay{
-    height: 100%;
-    width: 100%;
-    z-index: 1;
-    top: 0;
-    left: 0;
-    }
-</style>
-<div class="overlay">
-	<div class="row">
-		<div class="col"><br><br>
-			<img src={% static 'img/login.jpg' %} alt="">
-		</div>
-		<div class="col">
-			<div class="container">
-				<div class="card mt-5">
-					<div class="card-body">
-						<div class="card-title py-3">
-
-					<h4>Login to your account</h4>
-					<h5>Please Note this is login for faculty only</h5>
-					</div>
-					<form action="{% url 'faculty-login' %}" method="post">
-						{% csrf_token %}
-
-						{% include 'partials/_messages.html' %}
-
-					<div class="form-group">
-
-						<input type="text" name="username" id = "usernamefield"
-						value="{{fieldValues.username}}" placeholder ="username" class="form-control form-control-sm">
-					</div>
-
-					<div class="form-group">
-
-						<input type="password" name="password" id = "passwordfield" placeholder ="password" class="form-control form-control-sm">
-					</div>
-
-					<input type="submit" value="Login" class = "btn btn-block" style="border-color:#745959; color:#745959;"/>
-
-				</form>
-					<div class="container">
-						<span class = "text-lead lead"> Dont have an account? </span><a href = "{% url 'faculty-register' %}" class="">Register</a>
-
-						<br>
-
-						<span  class = "text-lead lead"> Forgot Password? </span><a href = "{% url 'password_reset_faculty' %}" class="">Reset</a>
-					</div>
-				</div>
-			</div>
-		</div>
-		</div>
-		<div class="col-md-4"></div>
-	</div>
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+  <div class="w-full max-w-md mx-auto animate-fade-in">
+    <div class="text-center mb-8">
+      <div class="w-16 h-16 bg-blue-600 bg-opacity-90 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+        <i class="bi bi-person-badge text-3xl text-white"></i>
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Faculty Login</h1>
+      <p class="text-gray-600">Sign in to access your faculty portal</p>
+    </div>
+    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-100 p-8">
+      <form action="{% url 'faculty-login' %}" method="post" class="space-y-6">
+        {% csrf_token %}
+        {% include 'partials/_messages.html' %}
+        <div class="space-y-2">
+          <label for="usernamefield" class="block text-sm font-medium text-gray-700">Username</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="bi bi-person text-gray-400"></i>
+            </div>
+            <input type="text" name="username" id="usernamefield" value="{{fieldValues.username}}" placeholder="username" class="pl-10 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 w-full transition-all duration-200 bg-white/80">
+          </div>
+        </div>
+        <div class="space-y-2">
+          <label for="passwordfield" class="block text-sm font-medium text-gray-700">Password</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="bi bi-lock text-gray-400"></i>
+            </div>
+            <input type="password" name="password" id="passwordfield" placeholder="password" class="pl-10 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 w-full transition-all duration-200 bg-white/80">
+          </div>
+        </div>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2">
+          <i class="bi bi-box-arrow-in-right mr-2"></i>
+          Sign In
+        </button>
+      </form>
+      <div class="mt-6 text-center space-y-2">
+        <div class="text-sm text-gray-600">
+          Don't have an account?
+          <a href="{% url 'faculty-register' %}" class="font-medium text-blue-600 hover:text-blue-500 transition-colors">Register</a>
+        </div>
+        <div class="text-sm text-gray-600">
+          <a href="{% url 'password_reset_faculty' %}" class="font-medium text-blue-600 hover:text-blue-500 transition-colors">Forgot your password?</a>
+        </div>
+      </div>
+    </div>
+    <div class="mt-8 text-center animate-fade-in">
+      <p class="text-sm text-gray-500">Need help? Contact your administrator</p>
+    </div>
+  </div>
 </div>
-
-
-<script src = "{% static 'js/register.js' %}" type="text/javascript"></script>
-
+<style>
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+.animate-fade-in {
+  animation: fade-in 0.7s cubic-bezier(0.4,0,0.2,1) both;
+}
+</style>
 {% endblock %}

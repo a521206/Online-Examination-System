@@ -2,12 +2,14 @@ from django.db import models
 from django.forms import ModelForm
 from django.contrib.auth.models import User
 from django import forms
+from course.models import Topic
 
 class Question_DB(models.Model):
     QUESTION_TYPE_CHOICES = [
         ('MCQ', 'Multiple Choice'),
         ('SHORT', 'Short Answer'),
     ]
+    topic = models.ForeignKey(Topic, on_delete=models.SET_NULL, null=True, blank=True, related_name='questions')
     question_type = models.CharField(
         max_length=10,
         choices=QUESTION_TYPE_CHOICES,
@@ -59,6 +61,7 @@ class QForm(ModelForm):
         fields = '__all__'
         exclude = ['qno']
         widgets = {
+            'topic': forms.Select(attrs={'class': 'form-control'}),
             'question_type': forms.Select(attrs={'class': 'form-control'}),
             'question': forms.Textarea(attrs = {
                 'class': 'form-control',

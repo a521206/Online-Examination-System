@@ -11,3 +11,4 @@ pycparser
 openpyxl
 validate-email
 pandas
+django-widget-tweaks

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container mt-4">
+    <h2 class="mb-4">Select Exam</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="courseSelect">Subject</label>
+                <select id="courseSelect" class="form-control">
+                    <option value="">--- Select a Subject ---</option>
+                    {% for course in courses %}
+                        <option value="{{ course.pk }}">{{ course.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="topicSelect">Topic</label>
+                <select id="topicSelect" class="form-control" disabled>
+                    <option value="">--- Select a Topic ---</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div id="examList" class="mt-4">
+        <!-- Exams will be loaded here -->
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const courseSelect = document.getElementById('courseSelect');
+    const topicSelect = document.getElementById('topicSelect');
+    const examList = document.getElementById('examList');
+
+    courseSelect.addEventListener('change', function() {
+        const courseId = this.value;
+        topicSelect.disabled = true;
+        topicSelect.innerHTML = '<option value="">--- Loading Topics ---</option>';
+        examList.innerHTML = '';
+
+        if (courseId) {
+            fetch(`?course_id=${courseId}`)
+                .then(response => response.text())
+                .then(data => {
+                    topicSelect.innerHTML = data;
+                    topicSelect.disabled = false;
+                });
+        } else {
+            topicSelect.innerHTML = '<option value="">--- Select a Topic ---</option>';
+        }
+    });
+
+    topicSelect.addEventListener('change', function() {
+        const topicId = this.value;
+        examList.innerHTML = '';
+
+        if (topicId) {
+            fetch(`?topic_id=${topicId}`)
+                .then(response => response.text())
+                .then(data => {
+                    examList.innerHTML = data;
+                });
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

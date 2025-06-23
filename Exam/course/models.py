@@ -48,6 +48,13 @@ class CourseRegistration(models.Model):
     session = models.ForeignKey(Session, on_delete=models.CASCADE)
     grade = models.ForeignKey(Grade, on_delete=models.SET_NULL, null=True)
 
+class Topic(models.Model):
+    name = models.CharField(max_length=250)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='topics')
+
+    def __str__(self):
+        return self.name
+
 
 
 

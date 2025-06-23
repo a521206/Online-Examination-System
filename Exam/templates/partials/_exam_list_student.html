@@ -1,0 +1,29 @@
+{% for exam in exams %}
+<div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+    <div class="flex items-center mb-4">
+        <i class="bi bi-journal-text text-2xl text-blue-600 mr-3"></i>
+        <h3 class="text-xl font-bold text-gray-900">{{ exam.name }}</h3>
+    </div>
+    <div class="mb-2 text-gray-700">
+        <span class="font-medium">Professor:</span> {{ exam.professor }}
+    </div>
+    <div class="mb-2 text-gray-700">
+        <span class="font-medium">Question Paper:</span> {{ exam.question_paper.qPaperTitle }}
+    </div>
+    <div class="mb-2 text-gray-700">
+        <span class="font-medium">Start Time:</span> {{ exam.start_time|date:"M d, Y H:i" }}
+    </div>
+    <a href="{% url 'appear-exam' exam.id %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors mt-4">
+        <i class="bi bi-play-circle mr-2"></i>
+        Start Exam
+    </a>
+</div>
+{% empty %}
+<div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 text-center">
+    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <i class="bi bi-emoji-frown text-4xl text-gray-400"></i>
+    </div>
+    <h2 class="text-2xl font-bold text-gray-900 mb-2">No Exams Found</h2>
+    <p class="text-gray-600">No exams are available for this topic.</p>
+</div>
+{% endfor %} 

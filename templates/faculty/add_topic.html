@@ -1,0 +1,12 @@
+{% extends 'base_faculty.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Add Topic to {{ course.name }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Save Topic</button>
+    </form>
+</div>
+{% endblock %} 

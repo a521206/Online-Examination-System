@@ -7,11 +7,5 @@ urlpatterns = [
     path('prof/addquestions/',views.add_questions,name="faculty-addquestions"),
     path('prof/addnewquestionpaper/',views.add_question_paper,name="faculty-add_question_paper"),
     path('prof/viewstudents/',views.view_students_prof,name="faculty-student"),
-    path('student/viewexams/',views.view_exams_student,name="view_exams_student"),
-    path('student/previous/',views.student_view_previous,name="student-previous"),
-    path('student/appear/<int:id>',views.appear_exam,name = "appear-exam"),
-    path('student/attendance/',views.view_students_attendance,name="view_students_attendance"),
     path('prof/upload-questions-excel/',views.upload_questions_excel,name="upload_questions_excel"),
-    path('student/answers/<int:exam_id>/',views.review_answers,name="review_answers"),
-    path('student/attempts/<int:exam_id>/',views.view_exam_attempts,name="view_exam_attempts"),
 ]

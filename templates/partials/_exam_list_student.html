@@ -1,0 +1,12 @@
+{% for exam in exams %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">{{ exam.name }}</h5>
+        <p class="card-text">Total Marks: {{ exam.total_marks }}</p>
+        <p class="card-text">Start Time: {{ exam.start_time }}</p>
+        <a href="{% url 'appear-exam' exam.id %}" class="btn btn-primary">Appear for Exam</a>
+    </div>
+</div>
+{% empty %}
+<div class="alert alert-info">No upcoming exams found for this topic.</div>
+{% endfor %} 

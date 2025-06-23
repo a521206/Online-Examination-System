@@ -24,6 +24,7 @@ from utils import validate_short_answers_with_llm, ShortAnswerValidationRequest
 import openai
 import os
 from .services import process_exam_submission, prepare_review_data
+from course.models import Course, Topic
 
 def has_group(user, group_name):
     group = Group.objects.get(name=group_name)
@@ -62,19 +63,26 @@ def add_question_paper(request):
     if prof:
         permissions = has_group(prof,"Professor")
     if permissions:
-        new_Form = QPForm(prof_user)
-        if request.method == 'POST' and permissions:
-            form = QPForm(prof_user,request.POST)
+        if request.method == 'POST':
+            form = QPForm(prof_user, request.POST)
             if form.is_valid():
-                exam = form.save(commit=False)
-                exam.professor = prof_user
-                exam.save()
+                question_paper = form.save(commit=False)
+                question_paper.professor = prof_user
+                question_paper.save()
                 form.save_m2m()
                 return redirect('faculty-add_question_paper')
+        else:
+            form = QPForm(prof_user)
+
+        # Handle AJAX request for topics
+        if 'course_id' in request.GET:
+            course_id = request.GET.get('course_id')
+            topics = Topic.objects.filter(course_id=course_id).order_by('name')
+            return render(request, 'partials/_topics_dropdown.html', {'topics': topics})
 
         exams = Exam_Model.objects.filter(professor=prof)
         return render(request, 'exam/addquestionpaper.html', {
-            'exams': exams, 'examform': new_Form, 'prof': prof,
+            'exams': exams, 'examform': form, 'prof': prof,
         })
     else:
         return redirect('view_exams_student')
@@ -201,31 +209,33 @@ def view_results_prof(request):
         'students':dicts
     })
 
-@login_required(login_url='login')
+@login_required(login_url='student-login')
 def view_exams_student(request):
-    exams = Exam_Model.objects.all()
-    available_exams = []
-    completed_exams = []
-    
-    for exam in exams:
-        attempts = StuExamAttempt.objects.filter(student=request.user, exam=exam)
-        if attempts.exists():
-            # Student has attempted this exam before
-            latest_attempt = attempts.order_by('-started_at').first()
-            completed_exams.append({
-                'exam': exam,
-                'attempt_count': attempts.count(),
-                'latest_score': latest_attempt.score,
-                'latest_attempt_date': latest_attempt.completed_at,
-                'best_score': max(attempt.score for attempt in attempts)
-            })
-        else:
-            # Student hasn't attempted this exam yet
-            available_exams.append(exam)
+    stud = request.user
+    permissions = has_group(stud, "Student")
+    if not permissions:
+        return redirect('faculty-login')
 
-    return render(request,'exam/mainexamstudent.html',{
-        'available_exams': available_exams,
-        'completed_exams': completed_exams
+    course_id = request.GET.get('course_id')
+    topic_id = request.GET.get('topic_id')
+
+    # AJAX request for topics
+    if course_id and not topic_id:
+        topics = Topic.objects.filter(course_id=course_id).order_by('name')
+        return render(request, 'partials/_topics_dropdown.html', {'topics': topics})
+
+    # AJAX request for exams
+    if topic_id:
+        exams = Exam_Model.objects.filter(
+            question_paper__topic_id=topic_id,
+            start_time__gte=timezone.now()
+        )
+        return render(request, 'partials/_exam_list_student.html', {'exams': exams})
+
+    # Initial view
+    courses = Course.objects.all()
+    return render(request, 'exam/mainexamstudent.html', {
+        'courses': courses, 'student': stud,
     })
 
 @login_required(login_url='login')
