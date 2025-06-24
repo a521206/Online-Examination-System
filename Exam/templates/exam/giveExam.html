@@ -4,23 +4,11 @@
 
 {% block head %}
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <!-- Optimized MathJax Configuration for Questions and Options -->
-  <script>
-    window.MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
-        processEscapes: true,
-        processEnvironments: true
-      },
-      options: {
-        ignoreHtmlClass: 'tex2jax_ignore',
-        processHtmlClass: 'tex2jax_process',
-        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-      }
-    };
-  </script>
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <!-- KaTeX CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <!-- KaTeX JS -->
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 {% endblock %}
 
 {% block body %}
@@ -70,7 +58,7 @@
         <div class="border border-gray-200 rounded-lg p-5 bg-white transition-all duration-300 hover:shadow-lg question-visible" data-question="{{ ques.qno }}">
           <h2 class="text-xl font-semibold mb-3 text-gray-900 leading-relaxed">
             <span class="text-blue-600 mr-2">{{ start_question_number|add:forloop.counter0 }}.</span> 
-            <span class="tex2jax_process">{{ ques.question|safe }}</span>
+            <span>{{ ques.question|safe }}</span>
           </h2>
           <div class="space-y-2 text-gray-700">
             {% if ques.question_type == 'MCQ' %}
@@ -79,7 +67,7 @@
                 <input class="hidden" type="radio" id="option{{ opt }}{{ forloop.parentloop.counter }}" name="{{ ques.qno }}" value="{{ opt }}" {% if answers|get_item:ques.qno == opt %}checked{% endif %}>
                 <span class="p-2 border border-gray-300 rounded-md hover:bg-blue-50 hover:border-blue-400 inline-block w-full">
                   <span class="font-medium">{{ opt }}:</span> 
-                  <span class="tex2jax_process">{{ ques|get_item_option:opt|safe }}</span>
+                  <span>{{ ques|get_item_option:opt|safe }}</span>
                 </span>
               </label>
               {% endfor %}
@@ -112,39 +100,39 @@
                         <tbody>
                           <tr>
                             <td class="px-3 py-2 border-b border-blue-100"><code>$a^2 + b^2$</code></td>
-                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$a^2 + b^2$</span></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span>$a^2 + b^2$</span></td>
                           </tr>
                           <tr>
                             <td class="px-3 py-2 border-b border-blue-100"><code>$\frac{a}{b}$</code></td>
-                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$\frac{a}{b}$</span></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span>$\frac{a}{b}$</span></td>
                           </tr>
                           <tr>
                             <td class="px-3 py-2 border-b border-blue-100"><code>$x_1 + x_2$</code></td>
-                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$x_1 + x_2$</span></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span>$x_1 + x_2$</span></td>
                           </tr>
                           <tr>
                             <td class="px-3 py-2 border-b border-blue-100"><code>$\sqrt{x}$</code></td>
-                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$\sqrt{x}$</span></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span>$\sqrt{x}$</span></td>
                           </tr>
                           <tr>
                             <td class="px-3 py-2 border-b border-blue-100"><code>$\alpha + \beta$</code></td>
-                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$\alpha + \beta$</span></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span>$\alpha + \beta$</span></td>
                           </tr>
                           <tr>
                             <td class="px-3 py-2 border-b border-blue-100"><code>$\sum_{i=1}^n x_i$</code></td>
-                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$\sum_{i=1}^n x_i$</span></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span>$\sum_{i=1}^n x_i$</span></td>
                           </tr>
                           <tr>
                             <td class="px-3 py-2 border-b border-blue-100"><code>$$\int_0^1 x dx$$</code></td>
-                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$$\int_0^1 x dx$$</span></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span>$$\int_0^1 x dx$$</span></td>
                           </tr>
                           <tr>
                             <td class="px-3 py-2 border-b border-blue-100"><code>$\frac{d}{dx} x^2$</code></td>
-                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$\frac{d}{dx} x^2$</span></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span>$\frac{d}{dx} x^2$</span></td>
                           </tr>
                           <tr>
                             <td class="px-3 py-2 border-b border-blue-100"><code>$\pi$</code></td>
-                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$\pi$</span></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span>$\pi$</span></td>
                           </tr>
                         </tbody>
                       </table>
@@ -162,7 +150,7 @@
                 >{{ answers|get_item:ques.qno }}</textarea>
                 <div 
                   id="preview-{{ ques.qno }}" 
-                  class="mt-1 p-3 border border-gray-200 rounded-md bg-gray-50 min-h-[60px] tex2jax_process"
+                  class="mt-1 p-3 border border-gray-200 rounded-md bg-gray-50 min-h-[60px]"
                 >
                   {% if answers|get_item:ques.qno %}
                     {{ answers|get_item:ques.qno|safe }}
@@ -264,6 +252,21 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+});
+</script>
+
+<!-- Add this before </body> or at the end of the template -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  renderMathInElement(document.body, {
+    delimiters: [
+      {left: "$$", right: "$$", display: true},
+      {left: "$", right: "$", display: false},
+      {left: "\\(", right: "\\)", display: false},
+      {left: "\\[", right: "\\]", display: true}
+    ],
+    ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+  });
 });
 </script>
 {% endblock %}
