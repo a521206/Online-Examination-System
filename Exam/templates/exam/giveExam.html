@@ -16,7 +16,7 @@
       options: {
         ignoreHtmlClass: 'tex2jax_ignore',
         processHtmlClass: 'tex2jax_process',
-        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
       }
     };
   </script>
@@ -84,7 +84,102 @@
               </label>
               {% endfor %}
             {% elif ques.question_type == 'SHORT' %}
-              <textarea name="{{ ques.qno }}" rows="3" class="form-input mt-1 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Type your answer here...">{{ answers|get_item:ques.qno }}</textarea>
+              <div class="mb-4">
+                <!-- Show/Hide Math Help Button -->
+                <button type="button"
+                        id="math-help-toggle-{{ ques.qno }}"
+                        class="mb-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                        onclick="const helpBox = document.getElementById('math-help-{{ ques.qno }}'); helpBox.classList.toggle('hidden'); const btn = document.getElementById('math-help-toggle-{{ ques.qno }}'); btn.textContent = helpBox.classList.contains('hidden') ? 'Show Math Help' : 'Hide Math Help';">
+                  Show Math Help
+                </button>
+                <!-- MathJax/KaTeX Hints for Students (hidden by default) -->
+                <div id="math-help-{{ ques.qno }}" class="hidden">
+                  <div class="math-hints bg-blue-100 border-2 border-blue-400 rounded-lg p-4 text-sm mb-2 shadow-md">
+                    <div class="flex items-center mb-2">
+                      <span class="inline-block mr-2 text-blue-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 01.88 7.88M8 17a4 4 0 01-.88-7.88M12 3v1m0 16v1m8.66-12.34l-.7.7M4.34 19.66l-.7.7M21 12h-1M4 12H3m16.66 7.34l-.7-.7M4.34 4.34l-.7-.7" /></svg>
+                      </span>
+                      <strong class="text-blue-800">How to write math: wrap with <code>$...$</code></strong>
+                    </div>
+                    <div class="overflow-x-auto mt-2">
+                      <table class="min-w-full border-2 border-blue-300 bg-white rounded">
+                        <thead>
+                          <tr class="bg-blue-200">
+                            <th class="px-3 py-2 border-b-2 border-blue-300 text-left font-semibold">What you type</th>
+                            <th class="px-3 py-2 border-b-2 border-blue-300 text-left font-semibold">Preview</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="px-3 py-2 border-b border-blue-100"><code>$a^2 + b^2$</code></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$a^2 + b^2$</span></td>
+                          </tr>
+                          <tr>
+                            <td class="px-3 py-2 border-b border-blue-100"><code>$\frac{a}{b}$</code></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$\frac{a}{b}$</span></td>
+                          </tr>
+                          <tr>
+                            <td class="px-3 py-2 border-b border-blue-100"><code>$x_1 + x_2$</code></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$x_1 + x_2$</span></td>
+                          </tr>
+                          <tr>
+                            <td class="px-3 py-2 border-b border-blue-100"><code>$\sqrt{x}$</code></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$\sqrt{x}$</span></td>
+                          </tr>
+                          <tr>
+                            <td class="px-3 py-2 border-b border-blue-100"><code>$\alpha + \beta$</code></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$\alpha + \beta$</span></td>
+                          </tr>
+                          <tr>
+                            <td class="px-3 py-2 border-b border-blue-100"><code>$\sum_{i=1}^n x_i$</code></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$\sum_{i=1}^n x_i$</span></td>
+                          </tr>
+                          <tr>
+                            <td class="px-3 py-2 border-b border-blue-100"><code>$$\int_0^1 x dx$$</code></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$$\int_0^1 x dx$$</span></td>
+                          </tr>
+                          <tr>
+                            <td class="px-3 py-2 border-b border-blue-100"><code>$\frac{d}{dx} x^2$</code></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$\frac{d}{dx} x^2$</span></td>
+                          </tr>
+                          <tr>
+                            <td class="px-3 py-2 border-b border-blue-100"><code>$\pi$</code></td>
+                            <td class="px-3 py-2 border-b border-blue-100 bg-blue-50"><span class="tex2jax_process">$\pi$</span></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <span class="text-xs text-blue-700 block mt-2"><a href="https://katex.org/docs/supported.html" target="_blank" class="underline">More examples</a></span>
+                  </div>
+                </div>
+                <textarea 
+                  id="answer-{{ ques.qno }}" 
+                  name="{{ ques.qno }}" 
+                  rows="3" 
+                  class="form-input mt-1 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" 
+                  placeholder="Type your answer here, e.g. $a^2 + b^2$"
+                  oninput="updatePreview('answer-{{ ques.qno }}', 'preview-{{ ques.qno }}')"
+                >{{ answers|get_item:ques.qno }}</textarea>
+                <div 
+                  id="preview-{{ ques.qno }}" 
+                  class="mt-1 p-3 border border-gray-200 rounded-md bg-gray-50 min-h-[60px] tex2jax_process"
+                >
+                  {% if answers|get_item:ques.qno %}
+                    {{ answers|get_item:ques.qno|safe }}
+                  {% else %}
+                    Your answer will be previewed here...
+                  {% endif %}
+                </div>
+              </div>
+              <script>
+                function insertSample(qno) {
+                  const textarea = document.getElementById('answer-' + qno);
+                  if (textarea) {
+                    textarea.value = '$a^2 + b^2$';
+                    updatePreview('answer-' + qno, 'preview-' + qno);
+                  }
+                }
+              </script>
             {% endif %}
           </div>
           <div class="mt-4 flex justify-between items-center text-sm text-gray-600">

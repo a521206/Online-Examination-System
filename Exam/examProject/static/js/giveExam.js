@@ -7,12 +7,42 @@ var dminElement = null;
 var minLabelElement = null;
 var secLabelElement = null;
 
+// Function to update the LaTeX/AsciiMath preview
+function updatePreview(textareaId, previewId) {
+    const textarea = document.getElementById(textareaId);
+    const preview = document.getElementById(previewId);
+    
+    if (textarea && preview) {
+        // Update the preview content
+        preview.innerHTML = textarea.value || 'Your answer will be previewed here...';
+        
+        // Typeset the math in the preview
+        if (window.MathJax) {
+            MathJax.typesetPromise([preview]).catch(function(err) {
+                console.error('MathJax typeset error:', err);
+            });
+        }
+    }
+}
+
+// Initialize all previews on page load
+function initializePreviews() {
+    document.querySelectorAll('[id^="answer-"]').forEach(textarea => {
+        const questionId = textarea.id.replace('answer-', '');
+        const previewId = 'preview-' + questionId;
+        updatePreview(textarea.id, previewId);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Cache DOM elements for better performance
     dsecElement = document.getElementById("dsec");
     dminElement = document.getElementById("dmin");
     minLabelElement = document.getElementById("min-label");
     secLabelElement = document.getElementById("sec-label");
+    
+    // Initialize previews for any existing content
+    initializePreviews();
     
     // Initialize radio button selection handling
     initializeRadioButtons();
