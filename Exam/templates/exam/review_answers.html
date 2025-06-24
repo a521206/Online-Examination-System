@@ -186,6 +186,28 @@
                                         </div>
                                     </div>
                                 {% endif %}
+                                {% if not item.is_correct %}
+                                <!-- Feedback Button and Form -->
+                                <div class="mt-4">
+                                  <button type="button" class="text-blue-600 underline text-sm" onclick="document.getElementById('feedback-form-{{ forloop.counter }}').classList.toggle('hidden')">Give Feedback</button>
+                                  <form id="feedback-form-{{ forloop.counter }}" class="hidden mt-2 bg-blue-50 border border-blue-200 rounded p-3" onsubmit="submitQuestionFeedback(event, '{{ item.question_id }}')">
+                                    <input type="hidden" name="question_id" value="{{ item.question_id }}">
+                                    <input type="hidden" name="attempt_id" value="{{ attempt_id }}">
+                                    <label class="block text-xs font-semibold mb-1">Type of feedback:</label>
+                                    <select name="feedback_type" class="form-select mb-2 w-full rounded border-gray-300">
+                                      <option value="wrong_question">Wrong question</option>
+                                      <option value="wrong_solution">Wrong solution</option>
+                                      <option value="too_hard">Too hard</option>
+                                      <option value="not_relevant">Not relevant</option>
+                                      <option value="other">Other</option>
+                                    </select>
+                                    <label class="block text-xs font-semibold mb-1">Additional comments (optional):</label>
+                                    <textarea name="comment" rows="2" class="form-input w-full rounded border-gray-300 mb-2"></textarea>
+                                    <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">Submit Feedback</button>
+                                    <span class="hidden text-green-700 ml-2" id="feedback-thankyou-{{ forloop.counter }}">Thank you for your feedback!</span>
+                                  </form>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -206,6 +228,18 @@
                 <i class="bi bi-list-ul mr-2"></i>
                 View All Attempts
             </a>
+        </div>
+
+        <!-- Paper Feedback at the end -->
+        <div class="mt-10 max-w-2xl mx-auto bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+          <h3 class="text-lg font-semibold text-yellow-900 mb-2">Feedback on the Question Paper</h3>
+          <form id="paper-feedback-form" onsubmit="submitPaperFeedback(event, '{{ exam.id }}')">
+            <input type="hidden" name="exam_id" value="{{ exam.id }}">
+            <input type="hidden" name="attempt_id" value="{{ attempt_id }}">
+            <textarea name="comment" rows="3" class="form-input w-full rounded border-gray-300 mb-2" placeholder="Any feedback about the question paper as a whole?"></textarea>
+            <button type="submit" class="bg-yellow-600 text-white px-4 py-1 rounded">Submit Feedback</button>
+            <span class="hidden text-green-700 ml-2" id="paper-feedback-thankyou">Thank you for your feedback!</span>
+          </form>
         </div>
 
     {% else %}
@@ -259,5 +293,48 @@
       }
     }, 500);
   });
+
+function submitQuestionFeedback(event, questionId) {
+  event.preventDefault();
+  var form = event.target;
+  var thankyou = form.querySelector('[id^="feedback-thankyou-"]');
+  var data = new FormData(form);
+  fetch('/student/feedback/question/', {
+    method: 'POST',
+    body: data,
+    headers: { 'X-CSRFToken': getCookie('csrftoken') }
+  }).then(r => {
+    if (thankyou) thankyou.classList.remove('hidden');
+    setTimeout(() => { form.classList.add('hidden'); }, 1200);
+  });
+}
+function submitPaperFeedback(event, examId) {
+  event.preventDefault();
+  var form = event.target;
+  var thankyou = document.getElementById('paper-feedback-thankyou');
+  var data = new FormData(form);
+  fetch('/student/feedback/paper/', {
+    method: 'POST',
+    body: data,
+    headers: { 'X-CSRFToken': getCookie('csrftoken') }
+  }).then(r => {
+    if (thankyou) thankyou.classList.remove('hidden');
+    setTimeout(() => { form.reset(); }, 1200);
+  });
+}
+function getCookie(name) {
+  var cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    var cookies = document.cookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+      var cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
 </script>
 {% endblock %} 

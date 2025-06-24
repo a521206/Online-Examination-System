@@ -86,3 +86,25 @@ class StuResults_DB(models.Model):
 
     def __str__(self):
         return str(self.student.username) +" -StuResults_DB"
+
+class QuestionFeedback(models.Model):
+    FEEDBACK_CHOICES = [
+        ("wrong_question", "Wrong question"),
+        ("wrong_solution", "Wrong solution"),
+        ("too_hard", "Too hard"),
+        ("not_relevant", "Not relevant"),
+        ("other", "Other"),
+    ]
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question_DB, on_delete=models.CASCADE)
+    attempt = models.ForeignKey('StuExamAttempt', on_delete=models.CASCADE)
+    feedback_type = models.CharField(max_length=20, choices=FEEDBACK_CHOICES)
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class PaperFeedback(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    exam = models.ForeignKey(Exam_Model, on_delete=models.CASCADE)
+    attempt = models.ForeignKey('StuExamAttempt', on_delete=models.CASCADE)
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)

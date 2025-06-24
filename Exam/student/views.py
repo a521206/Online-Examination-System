@@ -26,6 +26,11 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from utils.performance_monitor import monitor_performance
+from django.http import JsonResponse, HttpResponseBadRequest
+from .models import QuestionFeedback, PaperFeedback
+from questions.question_models import Question_DB
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 @login_required(login_url='login')
 def index(request):
@@ -377,13 +382,64 @@ def review_answers(request, exam_id):
     if not attempt:
         return render(request, 'exam/review_answers.html', {'exam': exam, 'review_data': [], 'summary': {}})
     review_data, summary = prepare_review_data(attempt)
+    # Ensure each item in review_data has question_id
+    for item in review_data:
+        if hasattr(item, 'qno'):
+            item['question_id'] = item.qno
+        elif 'qno' in item:
+            item['question_id'] = item['qno']
+        elif 'question_id' not in item:
+            item['question_id'] = None
     return render(request, 'exam/review_answers.html', {
         'exam': exam,
         'review_data': review_data,
         'summary': summary,
+        'attempt_id': attempt.id,
     })
 
 def has_group(user, group_name):
     group = Group.objects.get(name=group_name)
     return True if group in user.groups.all() else False
+
+@login_required(login_url='login')
+def student_feedback_question(request):
+    if request.method == 'POST':
+        question_id = request.POST.get('question_id')
+        feedback_type = request.POST.get('feedback_type')
+        comment = request.POST.get('comment', '')
+        attempt_id = request.POST.get('attempt_id') or request.session.get('current_attempt_id')
+        try:
+            question = Question_DB.objects.get(pk=question_id)
+            attempt = StuExamAttempt.objects.get(pk=attempt_id, student=request.user)
+            QuestionFeedback.objects.create(
+                student=request.user,
+                question=question,
+                attempt=attempt,
+                feedback_type=feedback_type,
+                comment=comment
+            )
+            return JsonResponse({'status': 'ok'})
+        except Exception as e:
+            return HttpResponseBadRequest(str(e))
+    return HttpResponseBadRequest('Invalid request')
+
+@login_required(login_url='login')
+def student_feedback_paper(request):
+    if request.method == 'POST':
+        exam_id = request.POST.get('exam_id')
+        comment = request.POST.get('comment', '')
+        attempt_id = request.POST.get('attempt_id') or request.session.get('current_attempt_id')
+        try:
+            exam = Exam_Model.objects.get(pk=exam_id)
+            attempt = StuExamAttempt.objects.get(pk=attempt_id, student=request.user)
+            PaperFeedback.objects.create(
+                student=request.user,
+                exam=exam,
+                attempt=attempt,
+                comment=comment
+            )
+            return JsonResponse({'status': 'ok'})
+        except Exception as e:
+            return HttpResponseBadRequest(str(e))
+    return HttpResponseBadRequest('Invalid request')
 	

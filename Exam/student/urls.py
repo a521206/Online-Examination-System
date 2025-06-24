@@ -24,4 +24,6 @@ urlpatterns = [
     path('exams/answers/<int:exam_id>/', views.review_answers, name='review_answers'),
     path('exams/attempts/<int:exam_id>/', views.view_exam_attempts, name='view_exam_attempts'),
     path('exams/attendance/', views.view_students_attendance, name='view_students_attendance'),
+    path('feedback/question/', views.student_feedback_question, name='student_feedback_question'),
+    path('feedback/paper/', views.student_feedback_paper, name='student_feedback_paper'),
 ]
