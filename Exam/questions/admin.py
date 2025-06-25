@@ -9,12 +9,16 @@ from django import forms
 
 class QuestionDBAdmin(admin.ModelAdmin):
     change_list_template = "admin/questions/question_db_changelist.html"
-    list_display = ['qno', 'question', 'question_type', 'mcq_answer', 'short_answer', 'max_marks', 'professor']
+    list_display = ['qno', 'question', 'question_type', 'mcq_answer', 'short_answer', 'max_marks', 'professor', 'question_image', 'solution_image']
     list_filter = ['professor', 'max_marks', 'question_type']
     search_fields = ['question', 'mcq_answer', 'short_answer']
+    readonly_fields = ('question_image_preview', 'solution_image_preview',)
     fieldsets = (
         ('Question Details', {
             'fields': ('professor', 'question_type', 'question', 'max_marks')
+        }),
+        ('Images', {
+            'fields': ('question_image', 'question_image_preview', 'solution_image', 'solution_image_preview')
         }),
         ('MCQ Options (for MCQ only)', {
             'fields': ('optionA', 'optionB', 'optionC', 'optionD', 'mcq_answer')
@@ -28,6 +32,18 @@ class QuestionDBAdmin(admin.ModelAdmin):
         }),
     )
     form = QForm
+
+    def question_image_preview(self, obj):
+        if obj.question_image:
+            return format_html('<a href="{0}" target="_blank"><img src="{0}" width="150" height="150" /></a>', obj.question_image.url)
+        return "(No Image)"
+    question_image_preview.short_description = 'Question Image Preview'
+
+    def solution_image_preview(self, obj):
+        if obj.solution_image:
+            return format_html('<a href="{0}" target="_blank"><img src="{0}" width="150" height="150" /></a>', obj.solution_image.url)
+        return "(No Image)"
+    solution_image_preview.short_description = 'Solution Image Preview'
 
     class Media:
         js = ('js/question_type_toggle.js',)

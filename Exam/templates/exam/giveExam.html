@@ -60,6 +60,11 @@
             <span class="text-blue-600 mr-2">{{ start_question_number|add:forloop.counter0 }}.</span> 
             <span>{{ ques.question|safe }}</span>
           </h2>
+          {% if ques.question_image %}
+          <div class="my-4">
+            <img src="{{ ques.question_image.url }}" alt="Question Image" class="max-w-full h-auto rounded-lg border">
+          </div>
+          {% endif %}
           <div class="space-y-2 text-gray-700">
             {% if ques.question_type == 'MCQ' %}
               {% for opt in "ABCD" %}

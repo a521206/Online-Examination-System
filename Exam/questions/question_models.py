@@ -28,6 +28,8 @@ class Question_DB(models.Model):
     short_answer = models.TextField(blank=True, null=True, help_text="Expected/model answer for short answer questions")
     max_marks = models.IntegerField(default=0)
     solution = models.TextField(blank=True, null=True, help_text="Detailed explanation of the correct answer (supports HTML/markdown formatting)")
+    question_image = models.ImageField(upload_to='question_images/', blank=True, null=True, help_text="Image for the question (optional)")
+    solution_image = models.ImageField(upload_to='solution_images/', blank=True, null=True, help_text="Image for the solution/answer (optional)")
 
     class Meta:
         indexes = [

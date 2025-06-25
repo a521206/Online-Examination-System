@@ -39,7 +39,10 @@ from llm_utils import (
 )
 from file_utils import (
     extract_pdf_content,
-    save_questions_to_json
+    save_questions_to_json,
+    extract_images_from_pdf,
+    extract_images_pymupdf,
+    extract_pdf_structure
 )
 
 # --- Utility Functions ---
@@ -106,6 +109,24 @@ class LLMPDFParser:
         raw_text = self._get_raw_text(pdf_path, paths['raw'])
         questions_text, answers_text = self._separate_questions_and_answers(raw_text)
 
+        # Step 1b: Extract PDF structure in JSON and XML formats
+        structure_json_path = self.working_dir / f"{Path(pdf_path).stem}_structure.json"
+        structure_xml_path = self.working_dir / f"{Path(pdf_path).stem}_structure.xml"
+        extract_pdf_structure(pdf_path, structure_json_path, structure_xml_path)
+        print(f"PDF structure saved to {structure_json_path} and {structure_xml_path}")
+
+        # Step 1c: Extract images and save metadata
+        image_output_dir = Path(__file__).parent.parent / 'media' / 'question_images'
+        image_metadata = extract_images_from_pdf(pdf_path, image_output_dir)
+        if not image_metadata:
+            print("No embedded images were extracted from the PDF. Quitting.")
+            return
+        # Save metadata as JSON in working dir
+        img_meta_path = self.working_dir / f"{Path(pdf_path).stem}_image_metadata.json"
+        with open(img_meta_path, 'w', encoding='utf-8') as f:
+            json.dump(image_metadata, f, indent=2, ensure_ascii=False)
+        print(f"Image metadata saved to {img_meta_path}")
+
         # Step 2: Extract, combine, and enrich questions
         questions_objs = self._get_or_create_questions(
             questions_text, answers_text, paths
@@ -120,6 +141,7 @@ class LLMPDFParser:
             self._transform_and_save(questions_objs, paths['final'])
         else:
             print("No questions to process.")
+        return image_metadata
 
     # --- File and Path Management ---
 
